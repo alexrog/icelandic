@@ -653,16 +653,43 @@ function lessonStats(lesson){
   return {total: items.length, mastered, started, due};
 }
 
-function totalDueCount(){
-  let n = 0;
+// Shared helper: walk every card lesson and collect {lid, idx} entries matching a filter.
+function collectEntries(filterFn){
+  const out = [];
   LESSONS.forEach(l=>{
     if(l.kind !== 'cards') return;
-    l.items.forEach(item=>{
+    l.items.forEach((item, idx)=>{
       const e = progress[cardKey(l.id, item.is)];
-      if(!e || isDue(e)) n++;
+      if(filterFn(e, item, l)) out.push({lid: l.id, idx});
     });
   });
-  return n;
+  return out;
+}
+
+// Review pool = cards you've rated at least once AND are due. Never-seen
+// cards are deliberately excluded — "new" and "review" are different tasks,
+// and mixing them was the bug the batching redesign is fixing.
+function reviewDuePool(){
+  return collectEntries(e => e && isDue(e));
+}
+
+// Every card you've rated at least once, regardless of due date — used only
+// for the pre-trip Final Review, not daily batching.
+function reviewLearnedPool(){
+  return collectEntries(e => !!e);
+}
+
+// Adaptive batch size: small pools stay as one batch; larger pools split into
+// a few even-ish groups targeting ~10 cards each, so no batch is a lonely
+// leftover of 1-2 cards and no batch is a 40-card slog.
+function computeBatchSize(n){
+  if(n <= 12) return n;
+  const batches = Math.ceil(n / 10);
+  return Math.ceil(n / batches);
+}
+
+function totalDueCount(){
+  return reviewDuePool().length;
 }
 
 function renderHome(){
@@ -671,13 +698,18 @@ function renderHome(){
     daysLeft + ' day' + (daysLeft===1?'':'s') + ' to Iceland';
 
   const due = totalDueCount();
+  const batchSize = computeBatchSize(due);
+  const batchCount = due > 0 ? Math.ceil(due / batchSize) : 0;
   const banner = document.getElementById('due-banner');
   if(daysLeft <= 4){
     banner.classList.remove('empty');
-    banner.innerHTML = `<div class="due-text">Trip's close — a full pass over every word beats waiting on individual due dates now.</div><button class="due-btn" onclick="startFinalReview()">Final Review</button>`;
+    banner.innerHTML = `<div class="due-text">Trip's close — a full pass over every learned word beats waiting on individual due dates now.</div><button class="due-btn" onclick="startFinalReview()">Final Review</button>`;
   } else if(due > 0){
     banner.classList.remove('empty');
-    banner.innerHTML = `<div class="due-text">You have <b>${due}</b> word${due===1?'':'s'} ready to review, mixed across your route.</div><button class="due-btn" onclick="startDueReview()">Review</button>`;
+    const batchLabel = batchCount > 1
+      ? `<b>${due}</b> words ready, split into ${batchCount} small batches of ~${batchSize}`
+      : `<b>${due}</b> word${due===1?'':'s'} ready`;
+    banner.innerHTML = `<div class="due-text">${batchLabel} — mixed across your route.</div><button class="due-btn" onclick="startReviewBatch()">Start batch</button>`;
   } else {
     banner.classList.add('empty');
     banner.innerHTML = `<div class="due-text">All caught up. Start a new stop below, or come back tomorrow.</div>`;
@@ -780,6 +812,19 @@ function shuffle(arr){
   return arr;
 }
 
+function reinsertMissed(entry){
+  // A missed card always landing at the very end is its own predictable
+  // pattern — you'd learn "the last card is always my mistake" instead of
+  // actually retrieving it. Drop it back in at a random spot among what's
+  // left, at least 2 cards ahead so it isn't a trivial immediate repeat.
+  const remaining = queue.length - (qIndex + 1);
+  if(remaining <= 1){ queue.push(entry); return; }
+  const minGap = Math.min(2, remaining);
+  const offset = minGap + Math.floor(Math.random() * (remaining - minGap + 1));
+  const insertAt = Math.min(queue.length, qIndex + 1 + offset);
+  queue.splice(insertAt, 0, entry);
+}
+
 let reviewMode = false; // true when running a mixed cross-lesson due-review session
 
 function openLesson(id){
@@ -801,38 +846,32 @@ function openLesson(id){
   renderCard();
 }
 
-function startDueReview(){
-  const entries = [];
-  LESSONS.forEach(l=>{
-    if(l.kind !== 'cards') return;
-    l.items.forEach((item, idx)=>{
-      const e = progress[cardKey(l.id, item.is)];
-      if(!e || isDue(e)) entries.push({lid: l.id, idx});
-    });
-  });
-  if(entries.length === 0) return;
+function startReviewBatch(){
+  const pool = reviewDuePool();
+  if(pool.length === 0) return;
+
+  const batchSize = computeBatchSize(pool.length);
+  const batch = shuffle(pool).slice(0, batchSize);
 
   currentLesson = null;
   reviewMode = true;
   document.getElementById('home').style.display = 'none';
   document.getElementById('lesson').classList.add('active');
-  document.getElementById('lesson-title').textContent = 'Mixed Review';
+  document.getElementById('lesson-title').textContent = 'Review Batch';
 
-  queue = shuffle(entries);
+  queue = batch;
   qIndex = 0;
   revealed = false;
   renderCard();
 }
 
-// A consolidated pass across every word, regardless of individual due dates —
-// the evidence for one comprehensive review shortly before a target date is
-// separate from (and additional to) ongoing spaced review.
+// A consolidated pass across every word you've learned at least once,
+// regardless of individual due dates — the evidence for one comprehensive
+// review shortly before a target date is separate from (and additional to)
+// ongoing spaced review. Not batched, since it's a deliberate one-off, not
+// part of the daily bite-sized flow.
 function startFinalReview(){
-  const entries = [];
-  LESSONS.forEach(l=>{
-    if(l.kind !== 'cards') return;
-    l.items.forEach((item, idx)=> entries.push({lid: l.id, idx}));
-  });
+  const entries = reviewLearnedPool();
   if(entries.length === 0) return;
 
   currentLesson = null;
@@ -941,7 +980,7 @@ function rate(score){
 
   if(score === 0){ // again
     progEntry.streak = 0;
-    queue.push(entry); // re-show later this session
+    reinsertMissed(entry); // land somewhere random in what's left, not predictably at the end
     const due = new Date(); due.setMinutes(due.getMinutes() + 1);
     progEntry.due = due.toISOString();
   } else {
@@ -964,13 +1003,29 @@ function rate(score){
 
 function renderDone(){
   const area = document.getElementById('card-area');
-  const label = reviewMode ? 'Mixed review' : currentLesson.name;
+  const remaining = reviewDuePool().length;
+
+  let label, detail, nextBtn = '';
+  if(!reviewMode){
+    label = currentLesson.name;
+    detail = 'Nice work. It\'ll resurface in review batches as it comes due.';
+  } else {
+    label = 'Batch complete';
+    if(remaining > 0){
+      detail = `${remaining} more word${remaining===1?'':'s'} still due today — another small batch whenever you're ready, no rush.`;
+      nextBtn = `<button class="tap-btn" style="margin-bottom:10px;" onclick="startReviewBatch()">Next batch</button>`;
+    } else {
+      detail = 'That was everything due right now. Nice clean sweep.';
+    }
+  }
+
   area.innerHTML = `
     <div class="done-wrap">
-      <p class="display">Stop complete.</p>
-      <p>${label} — nice work. Reviews will resurface here as they come due.</p>
+      <p class="display">${reviewMode ? 'Batch complete.' : 'Stop complete.'}</p>
+      <p>${reviewMode ? detail : (label + ' — ' + detail)}</p>
       <div class="tap-forward" style="margin-top:18px;">
-        <button class="tap-btn" onclick="goHome()">Back to the route</button>
+        ${nextBtn}
+        <button class="tap-btn" onclick="goHome()" style="${nextBtn ? 'background:var(--basalt-3);color:var(--glacier);' : ''}">Back to the route</button>
       </div>
     </div>
   `;
