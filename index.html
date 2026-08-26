@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Leiðin — Icelandic for the Road</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --basalt:#14171A;
+  --basalt-2:#1C2023;
+  --basalt-3:#252A2E;
+  --glacier:#EEF3EF;
+  --mist:#8B98A0;
+  --mist-dim:#5C666C;
+  --aurora:#6FE3A6;
+  --aurora-dim:#3E7A5C;
+  --sulfur:#E8A33D;
+  --skyline:#6FB8D6;
+  --lava:#E0654A;
+  --line:#2E3438;
+  --radius:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--basalt);
+  color:var(--glacier);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  overscroll-behavior:none;
+}
+::selection{background:var(--aurora-dim);color:var(--glacier);}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.display{font-family:'Fraunces',serif;}
+
+#app{max-width:520px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:24px;}
+
+/* ---------- HOME ---------- */
+.home-header{padding:28px 20px 8px;}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--sulfur);margin:0 0 10px;
+}
+.title{
+  font-family:'Fraunces',serif;font-weight:600;font-size:34px;line-height:1.05;
+  margin:0 0 6px;color:var(--glacier);
+  font-variation-settings:'opsz' 40;
+}
+.subtitle{color:var(--mist);font-size:14.5px;line-height:1.5;margin:0 0 22px;max-width:44ch;}
+
+.due-banner{
+  margin:0 20px 26px;padding:14px 16px;border-radius:var(--radius);
+  background:linear-gradient(135deg, rgba(111,227,166,0.14), rgba(111,184,214,0.08));
+  border:1px solid rgba(111,227,166,0.25);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.due-banner.empty{background:var(--basalt-2);border:1px solid var(--line);}
+.due-text{font-size:13.5px;color:var(--glacier);line-height:1.4;}
+.due-text b{color:var(--aurora);font-family:'IBM Plex Mono',monospace;font-weight:600;}
+.due-btn{
+  background:var(--aurora);color:#0C1210;border:none;border-radius:999px;
+  padding:9px 16px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;
+  white-space:nowrap;cursor:pointer;
+}
+.due-btn:active{transform:scale(0.97);}
+
+.storage-banner{
+  margin:0 20px 26px;padding:16px;border-radius:var(--radius);
+  background:rgba(224,101,74,0.08);border:1px solid rgba(224,101,74,0.3);
+}
+.storage-banner-title{font-size:13.5px;font-weight:600;color:var(--lava);margin:0 0 4px;}
+.storage-banner-text{font-size:12.5px;color:var(--mist);line-height:1.5;margin:0 0 12px;}
+.backup-actions{display:flex;flex-direction:column;gap:8px;}
+.backup-row{display:flex;gap:8px;}
+.backup-btn{
+  background:var(--basalt-3);border:1px solid var(--line);color:var(--glacier);
+  border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:600;
+  cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;
+}
+.backup-btn.primary{background:var(--sulfur);color:#241705;border:none;}
+.backup-input, .backup-code{
+  flex:1;background:var(--basalt);border:1px solid var(--line);border-radius:10px;
+  padding:9px 12px;font-size:12px;color:var(--glacier);font-family:'IBM Plex Mono',monospace;
+  min-width:0;
+}
+.backup-status{font-size:11.5px;color:var(--sulfur);margin:2px 0 0;min-height:14px;}
+
+/* Route visualization */
+.route-wrap{padding:6px 20px 20px;position:relative;}
+.route-line{
+  position:absolute;left:38px;top:6px;bottom:20px;width:2px;
+  background:repeating-linear-gradient(to bottom, var(--line) 0 6px, transparent 6px 12px);
+}
+.stop{
+  position:relative;display:flex;gap:16px;align-items:flex-start;
+  padding:11px 0;cursor:pointer;
+}
+.stop:active{opacity:0.75;}
+.node{
+  flex:none;width:34px;height:34px;border-radius:50%;
+  background:var(--basalt-2);border:2px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--mist);
+  z-index:1;position:relative;
+}
+.node.mastered{background:var(--aurora);border-color:var(--aurora);color:#0C1210;}
+.node.started{border-color:var(--sulfur);color:var(--sulfur);}
+.node.due{border-color:var(--lava);}
+.node svg{width:16px;height:16px;}
+.stop-body{flex:1;padding-top:2px;}
+.stop-name{font-size:15.5px;font-weight:600;color:var(--glacier);margin:0 0 2px;}
+.stop-meta{font-size:12px;color:var(--mist-dim);font-family:'IBM Plex Mono',monospace;}
+.stop-meta .due-tag{color:var(--lava);}
+.stop-meta .mastered-tag{color:var(--aurora);}
+.progress-pips{display:flex;gap:3px;margin-top:6px;}
+.pip{width:14px;height:4px;border-radius:2px;background:var(--line);}
+.pip.on{background:var(--aurora);}
+
+/* ---------- LESSON / CARD VIEW ---------- */
+.screen{position:absolute;inset:0;background:var(--basalt);min-height:100vh;display:none;}
+.screen.active{display:block;}
+.topbar{
+  display:flex;align-items:center;gap:12px;padding:16px 16px 10px;
+  position:sticky;top:0;background:var(--basalt);z-index:5;
+}
+.back-btn{
+  background:none;border:1px solid var(--line);color:var(--mist);
+  width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex:none;
+}
+.topbar-title{font-size:14px;font-weight:600;color:var(--glacier);flex:1;}
+.topbar-count{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--mist);}
+
+.card-stage{padding:10px 20px 20px;}
+.card{
+  background:var(--basalt-2);border:1px solid var(--line);border-radius:20px;
+  min-height:320px;padding:32px 24px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;gap:10px;
+  cursor:pointer;position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--aurora),var(--skyline));
+}
+.card-tag{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;
+  text-transform:uppercase;color:var(--mist-dim);position:absolute;top:16px;left:20px;
+}
+.card-is{
+  font-family:'Fraunces',serif;font-weight:600;font-size:30px;color:var(--glacier);
+  line-height:1.15;font-variation-settings:'opsz' 30;
+}
+.speak-btn{
+  background:var(--basalt-3);border:1px solid var(--line);border-radius:999px;
+  width:38px;height:38px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;margin-top:2px;
+}
+.speak-btn svg{width:16px;height:16px;fill:var(--skyline);}
+.speak-btn:active{transform:scale(0.95);}
+.speak-btn.disabled{opacity:0.3;pointer-events:none;}
+.audio-row{display:flex;gap:8px;align-items:center;margin-top:2px;}
+.forvo-link{
+  display:flex;align-items:center;gap:6px;
+  background:var(--basalt-3);border:1px solid var(--line);border-radius:999px;
+  padding:0 14px;height:38px;
+  font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;color:var(--sulfur);
+  text-decoration:none;cursor:pointer;
+}
+.forvo-link:active{transform:scale(0.96);}
+.forvo-link svg{width:13px;height:13px;flex:none;}
+
+.flip-hint{color:var(--mist-dim);font-size:12px;margin-top:6px;}
+.reveal{display:none;flex-direction:column;align-items:center;gap:10px;width:100%;}
+.reveal.show{display:flex;}
+.reveal-en{font-size:17px;color:var(--glacier);font-weight:500;}
+.reveal-pron{
+  font-family:'IBM Plex Mono',monospace;font-size:14.5px;color:var(--sulfur);
+  background:rgba(232,163,61,0.1);padding:5px 12px;border-radius:8px;
+}
+.reveal-note{font-size:12.5px;color:var(--mist);line-height:1.5;max-width:32ch;margin-top:2px;}
+.reveal-ex{
+  margin-top:8px;padding:10px 14px;border-radius:10px;background:var(--basalt-3);
+  border:1px solid var(--line);max-width:34ch;text-align:left;
+}
+.reveal-ex-label{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mist-dim);margin:0 0 4px;}
+.reveal-ex-is{font-size:13.5px;color:var(--glacier);font-style:italic;margin:0;}
+.reveal-ex-en{font-size:12px;color:var(--mist);margin:3px 0 0;}
+
+.rate-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:16px 20px 4px;}
+.rate-row.hidden{display:none;}
+.rate-btn{
+  border:none;border-radius:12px;padding:12px 4px;font-family:'Inter',sans-serif;
+  font-size:12.5px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;gap:3px;align-items:center;
+}
+.rate-btn small{font-family:'IBM Plex Mono',monospace;font-size:10px;opacity:0.75;font-weight:500;}
+.rate-again{background:rgba(224,101,74,0.15);color:var(--lava);}
+.rate-hard{background:rgba(232,163,61,0.15);color:var(--sulfur);}
+.rate-good{background:rgba(111,184,214,0.15);color:var(--skyline);}
+.rate-easy{background:rgba(111,227,166,0.15);color:var(--aurora);}
+.rate-btn:active{transform:scale(0.96);}
+
+.tap-forward{padding:0 20px;}
+.tap-btn{
+  width:100%;background:var(--aurora);color:#0C1210;border:none;border-radius:12px;
+  padding:14px;font-size:14.5px;font-weight:600;cursor:pointer;
+}
+.tap-btn:active{transform:scale(0.98);}
+
+.done-wrap{padding:60px 30px;text-align:center;}
+.done-wrap .display{font-size:26px;margin-bottom:8px;}
+.done-wrap p{color:var(--mist);font-size:14px;line-height:1.6;}
+
+/* Primer (reference) list */
+.primer-list{padding:8px 20px 20px;}
+.primer-item{
+  background:var(--basalt-2);border:1px solid var(--line);border-radius:14px;
+  padding:16px 18px;margin-bottom:10px;
+}
+.primer-letter{
+  font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--sulfur);
+  display:inline-block;min-width:44px;
+}
+.primer-rule{font-size:13.5px;color:var(--glacier);margin:6px 0 8px;line-height:1.5;}
+.primer-example{
+  font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--skyline);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.primer-example .arrow{color:var(--mist-dim);}
+
+.footer-note{padding:10px 20px 30px;color:var(--mist-dim);font-size:11.5px;text-align:center;line-height:1.6;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME SCREEN -->
+  <div id="home">
+    <div class="home-header">
+      <p class="eyebrow" id="countdown-text">— days to Iceland</p>
+      <h1 class="title">Leiðin</h1>
+      <p class="subtitle">The route to a few good words. Short daily lessons, spaced repeats, and pronunciation built for your southern coast drive.</p>
+    </div>
+
+    <div id="due-banner" class="due-banner"></div>
+    <div id="storage-banner"></div>
+
+    <div class="route-wrap">
+      <div class="route-line"></div>
+      <div id="stops"></div>
+    </div>
+
+    <p class="footer-note" id="footer-note">Checking whether progress is saving on this device…<br>Tap a stop to start or review its lesson.</p>
+  </div>
+
+  <!-- LESSON SCREEN -->
+  <div id="lesson" class="screen">
+    <div class="topbar">
+      <button class="back-btn" onclick="goHome()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B98A0" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="topbar-title" id="lesson-title">—</div>
+      <div class="topbar-count" id="lesson-count">1/1</div>
+    </div>
+
+    <div id="card-area"></div>
+  </div>
+
+</div>
+
+<script>
+/* ============================= CONTENT ============================= */
+/* pron notation key shown in Lesson 0:
+   TH = voiceless th (thin) [þ]   DH = voiced th (this) [ð]
+   KV = hv-   |  TL = ll   |  EYE = æ  |  UR = ö
+   Stress is always the FIRST syllable. Capitals = stressed syllable. */
+
+const LESSONS = [
+  {
+    id:"sounds", name:"Sounds First", kind:"cards",
+    desc:"Do this stop first, and let it come back around a few times before moving on — one read-through won't stick.",
+    items:[
+      {is:"Þingvellir", en:"þ → voiceless \"th\" (as in \"thin\") — never voiced", pron:"THING-vet-lir", note:"the rift valley / historic parliament site"},
+      {is:"maður", en:"ð → voiced \"th\" (as in \"this\") — softer, never starts a word", pron:"MAH-dhur", note:"means \"person / man\" — contrast with þ above"},
+      {is:"Hvalfjörður", en:"hv → pronounced \"kv,\" not \"w\" or \"wh\"", pron:"KVAL-fyur-dhur", note:"literally \"whale fjord\""},
+      {is:"jökull", en:"ll → a sharp \"tl\" sound, not a soft English \"L\"", pron:"YUR-kutl", note:"means \"glacier\" — you'll see this constantly"},
+      {is:"bær", en:"æ → like the \"eye\" in \"eye,\" or \"i\" in \"fine\"", pron:"byre", note:"means \"town\""},
+      {is:"höfn", en:"ö → like German ö, or \"u\" in \"fur\" with rounded lips", pron:"HUPN", note:"means \"harbor\" — also your route's endpoint"},
+      {is:"á", en:"á → like the \"ow\" in \"cow\"", pron:"OW", note:"as in \"á\" (river/stream)"},
+      {is:"vík", en:"í → a clean \"ee\" sound", pron:"VEEK", note:"means \"bay/cove\" — as in Vík í Mýrdal"},
+      {is:"sól", en:"ó → like the \"oh\" in \"go\"", pron:"SOHL", note:"means \"sun\""},
+      {is:"þú", en:"ú → like the \"oo\" in \"moon\"", pron:"THOO", note:"means \"you\""},
+      {is:"Mýrdal", en:"ý → same sound as í, a clean \"ee\"", pron:"MEER-dal", note:"the valley behind Vík's full name"},
+      {is:"Eyjafjallajökull", en:"stress always falls on the FIRST syllable — no exceptions", pron:"AY-yah-fyat-lah-yur-kutl", note:"you only need the first two syllables to be understood"}
+    ]
+  },
+  {
+    id:"greet", name:"Greetings & Manners", kind:"cards",
+    desc:"Just the essentials — enough to open and close an interaction politely.",
+    items:[
+      {is:"Halló", en:"Hello", pron:"hah-LOH", ex:{is:"Halló! Ég heiti Alex.", en:"Hello! I'm Alex."}},
+      {is:"Já", en:"Yes", pron:"yow", ex:{is:"Já, takk fyrir.", en:"Yes, thank you."}},
+      {is:"Nei", en:"No", pron:"nay", ex:{is:"Nei, því miður.", en:"No, unfortunately."}},
+      {is:"Takk", en:"Thanks", pron:"tahk", ex:{is:"Takk fyrir matinn.", en:"Thanks for the meal."}},
+      {is:"Bless", en:"Bye", pron:"bless", ex:{is:"Bless, sjáumst á morgun.", en:"Bye, see you tomorrow."}}
+    ]
+  },
+  {
+    id:"shops", name:"Shops & Errands", kind:"cards",
+    desc:"Words you'll see on signs, doors, and receipts — not lines to say.",
+    items:[
+      {is:"Opið", en:"Open", pron:"OH-pidh", ex:{is:"Opið til kl. 22", en:"Open until 10pm"}},
+      {is:"Lokað", en:"Closed", pron:"LOH-kadh", ex:{is:"Lokað á sunnudögum", en:"Closed on Sundays"}},
+      {is:"Poki", en:"Bag", pron:"POH-ki", ex:{is:"Þarf ég poka?", en:"Do I need a bag?"}},
+      {is:"Kvittun", en:"Receipt", pron:"KVIT-tun", ex:{is:"Má ég fá kvittun?", en:"Can I get a receipt?"}},
+      {is:"Verð", en:"Price", pron:"verdh", ex:{is:"verð með vsk", en:"price including tax"}},
+      {is:"Afsláttur", en:"Discount", pron:"AHF-slowt-tur"},
+      {is:"Útsala", en:"Sale / clearance", pron:"OOT-sah-la"},
+      {is:"Kassi", en:"Checkout / till", pron:"KAH-si"}
+    ]
+  },
+  {
+    id:"numbers", name:"Numbers & Time", kind:"cards",
+    desc:"Prices, headcounts, and the clock.",
+    items:[
+      {is:"einn", en:"one", pron:"ay-tn", ex:{is:"einn kaffibolli", en:"one cup of coffee"}},
+      {is:"tveir", en:"two", pron:"tvay-r", ex:{is:"tveir fullorðnir", en:"two adults"}},
+      {is:"þrír", en:"three", pron:"threer", ex:{is:"þrír kílómetrar", en:"three kilometers"}},
+      {is:"fjórir", en:"four", pron:"FYOH-rir", ex:{is:"fjórir dagar", en:"four days"}},
+      {is:"fimm", en:"five", pron:"fim", ex:{is:"fimm mínútur", en:"five minutes"}},
+      {is:"sex", en:"six", pron:"sex", ex:{is:"klukkan sex", en:"six o'clock"}},
+      {is:"sjö", en:"seven", pron:"syur", ex:{is:"sjö hundruð krónur", en:"seven hundred krónur"}},
+      {is:"átta", en:"eight", pron:"OW-tah", ex:{is:"átta manns", en:"eight people"}},
+      {is:"níu", en:"nine", pron:"NEE-u", ex:{is:"níu í kvöld", en:"nine tonight"}},
+      {is:"tíu", en:"ten", pron:"TEE-u", ex:{is:"tíu mínútur í viðbót", en:"ten more minutes"}},
+      {is:"núna", en:"now", pron:"NOO-na"}
+    ]
+  },
+  {
+    id:"road", name:"On the Road", kind:"cards",
+    desc:"The words signs are built from — so you can read signs you've never seen before, not just the ones in this deck.",
+    items:[
+      {is:"vegur", en:"road", pron:"VEH-gur", note:"seen as \"vegur lokaður\" — road closed"},
+      {is:"brú", en:"bridge", pron:"broo", note:"seen as \"einbreið brú\" — one-lane bridge, common on the south coast"},
+      {is:"malbik", en:"pavement / asphalt", pron:"MAL-bik", note:"seen as \"malbik endar\" — pavement ends, gravel ahead"},
+      {is:"endar", en:"ends", pron:"EN-dar"},
+      {is:"lokaður", en:"closed", pron:"LOH-ka-dhur"},
+      {is:"hægri", en:"right", pron:"HYE-gri"},
+      {is:"vinstri", en:"left", pron:"VIN-stri"},
+      {is:"beint", en:"straight", pron:"baynt", note:"seen as \"beint áfram\" — straight ahead"},
+      {is:"áfram", en:"ahead / onward", pron:"OW-fram"},
+      {is:"bensínstöð", en:"gas station", pron:"ben-SEEN-sturdh"},
+      {is:"aðgát", en:"caution", pron:"ADH-gowt"},
+      {is:"hálka", en:"slippery / ice", pron:"HOWL-ka"},
+      {is:"þjóðvegur", en:"highway / route", pron:"THYOHDH-veh-gur", note:"seen as \"Þjóðvegur 1\" — Route 1, the Ring Road"}
+    ]
+  },
+  {
+    id:"nature", name:"Nature & Your Route", kind:"cards",
+    desc:"The words behind the place names you'll actually drive to.",
+    items:[
+      {is:"foss", en:"waterfall", pron:"foss", note:"as in Skógafoss, Seljalandsfoss", ex:{is:"fallegur foss", en:"a beautiful waterfall"}},
+      {is:"jökull", en:"glacier", pron:"YUR-kutl", note:"as in Vatnajökull", ex:{is:"stór jökull", en:"a big glacier"}},
+      {is:"fjall", en:"mountain", pron:"fyatl", ex:{is:"hátt fjall", en:"a tall mountain"}},
+      {is:"fjörður", en:"fjord", pron:"FYUR-dhur", ex:{is:"djúpur fjörður", en:"a deep fjord"}},
+      {is:"sandur", en:"black sand plain", pron:"SAN-dur", note:"as in Breiðamerkursandur", ex:{is:"svartur sandur", en:"black sand"}},
+      {is:"hver", en:"hot spring", pron:"kver", ex:{is:"heitur hver", en:"a hot spring (lit. \"hot hot-spring\")"}},
+      {is:"eldfjall", en:"volcano", pron:"ELD-fyatl", ex:{is:"virkt eldfjall", en:"an active volcano"}},
+      {is:"Skógafoss", en:"forest waterfall — a south coast stop", pron:"SKOH-ga-foss"},
+      {is:"Reynisfjara", en:"the black sand beach near Vík", pron:"RAY-nis-fyah-ra", note:"respect the signs here — sneaker waves are real"},
+      {is:"Mýrdal", en:"the valley behind Vík's full name", pron:"MEER-dal", note:"the village's full name is Vík í Mýrdal"},
+      {is:"Jökulsárlón", en:"the glacier lagoon", pron:"YUR-kuls-owr-lohn"}
+    ]
+  },
+  {
+    id:"hofn", name:"South Coast → Höfn", kind:"cards",
+    desc:"The stretch past Vík — glacier lagoon, national park, and fuel planning.",
+    items:[
+      {is:"Skaftafell", en:"national park / glacier-hiking hub", pron:"SKAHF-ta-fetl"},
+      {is:"Fellsfjara", en:"Diamond Beach — ice on black sand", pron:"FETLS-fyah-ra", note:"across the road from Jökulsárlón"},
+      {is:"selir", en:"seals", pron:"SEH-lir", note:"often seen near the lagoon", ex:{is:"selir á sandinum", en:"seals on the sand"}},
+      {is:"ísjaki", en:"iceberg", pron:"EES-yah-ki", ex:{is:"stór ísjaki", en:"a big iceberg"}},
+      {is:"humar", en:"langoustine", pron:"HU-mar", note:"Höfn's specialty — the town is nicknamed \"Humarhöfn\"", ex:{is:"ferskur humar", en:"fresh langoustine"}},
+      {is:"Höfn", en:"the town — literally \"harbor\"", pron:"HUPN", note:"stress the front, keep it short"},
+      {is:"Bensín", en:"Petrol", pron:"ben-SEEN", ex:{is:"Er bensín hér?", en:"Is there petrol here?"}},
+      {is:"Tjaldsvæði", en:"Campsite", pron:"TYALDS-vigh-dhi", ex:{is:"Tjaldsvæði er hér nálægt.", en:"There's a campsite nearby."}},
+      {is:"Færð", en:"Travel/road conditions", pron:"fyrdh", note:"as in \"Færð og veður\" — the heading on Iceland's official road conditions site"},
+      {is:"Veður", en:"Weather", pron:"VEH-dhur", note:"worth reading before this route in bad conditions"},
+      {is:"Bílastæði", en:"Parking", pron:"BEE-la-sty-dhi", ex:{is:"Bílastæðið er fullt.", en:"The parking lot is full."}}
+    ]
+  },
+  {
+    id:"food", name:"Food & Dining", kind:"cards",
+    desc:"Words you'll actually see printed on a menu.",
+    items:[
+      {is:"Matseðill", en:"Menu", pron:"MAHT-seh-dhitl"},
+      {is:"Forréttur", en:"Starter / appetizer", pron:"FOR-ryeh-tur"},
+      {is:"Aðalréttur", en:"Main course", pron:"ADH-al-ryeh-tur"},
+      {is:"Eftirréttur", en:"Dessert", pron:"EF-tir-ryeh-tur"},
+      {is:"Fiskur", en:"Fish", pron:"FIS-kur"},
+      {is:"Lambakjöt", en:"Lamb", pron:"LAM-ba-kyurt"},
+      {is:"Kjöt", en:"Meat", pron:"kyurt"},
+      {is:"Súpa", en:"Soup", pron:"SOO-pa"},
+      {is:"Brauð", en:"Bread", pron:"broydh"},
+      {is:"Skyr", en:"Iceland's signature dairy product — like a thick yogurt", pron:"skir"},
+      {is:"Grænmeti", en:"Vegetables", pron:"GRINE-meh-ti"},
+      {is:"Vatn", en:"Water", pron:"vahtn"}
+    ]
+  },
+  {
+    id:"emergency", name:"Emergency & Health", kind:"cards",
+    desc:"Words on signs and buildings — hopefully unused, but worth recognizing.",
+    items:[
+      {is:"Hjálp!", en:"Help!", pron:"hyowlp"},
+      {is:"Neyðarlínan", en:"The emergency line", pron:"NAY-dhar-lee-nan", note:"dial 112 — one number for police, fire, ambulance, and search & rescue"},
+      {is:"Sjúkrabíll", en:"Ambulance", pron:"SYOOK-ra-beetl"},
+      {is:"Lögregla", en:"Police", pron:"LUR-greg-la"},
+      {is:"Sjúkrahús", en:"Hospital", pron:"SYOOK-ra-hoos"},
+      {is:"Neyðarútgangur", en:"Emergency exit", pron:"NAY-dhar-oot-gan-gur"}
+    ]
+  }
+];
+
+/* ============================= STATE ============================= */
+const TRIP_DATE = new Date("2026-09-19T00:00:00");
+let progress = {}; // { cardKey: {streak, due (ISO), reps} }
+let currentLesson = null;
+let queue = [];
+let qIndex = 0;
+let revealed = false;
+let icelandicVoice = null;
+
+// Recalibrated for a 3-week trip window, not generic long-term SRS defaults —
+// the old tail (16, 35 days) meant "mastered" words graduated past their last
+// possible review before departure. Capped at 14 so even a fully-graduated
+// word gets at least one more touchpoint before you leave.
+const STAGE_INTERVALS_DAYS = [0, 1, 3, 6, 10, 14]; // by streak
+
+function slugify(text){
+  return text
+    .toLowerCase()
+    .replace(/[?!.,…"']/g, '')
+    .trim()
+    .replace(/\s+/g, '-');
+}
+
+// Keyed by the phrase text itself (not its position in the array) so that
+// editing, reordering, or trimming lesson content never misapplies one
+// word's review history onto a different word that happens to share an index.
+function cardKey(lessonId, isText){ return lessonId + ":" + slugify(isText); }
+
+function todayISO(){ return new Date().toISOString(); }
+
+function isDue(entry){
+  if(!entry) return true;
+  return new Date(entry.due) <= new Date();
+}
+
+/* ============================= STORAGE ============================= */
+// Two possible backends: Claude's artifact bridge (window.storage) when running
+// inside claude.ai, or plain localStorage when running standalone (e.g. GitHub
+// Pages) where window.storage doesn't exist at all. Detected once at startup.
+let backend = null; // 'claude' | 'local' | null
+
+function claudeStorageAvailable(){
+  return typeof window.storage !== 'undefined'
+    && window.storage
+    && typeof window.storage.get === 'function'
+    && typeof window.storage.set === 'function';
+}
+function localStorageAvailable(){
+  try{
+    const k = '__icelandic_probe__';
+    localStorage.setItem(k, '1');
+    localStorage.removeItem(k);
+    return true;
+  }catch(e){ return false; } // private/incognito mode can throw here
+}
+
+async function backendGet(key){
+  if(backend === 'claude'){
+    const res = await window.storage.get(key, false);
+    return res ? res.value : null;
+  }
+  if(backend === 'local'){
+    return localStorage.getItem(key);
+  }
+  return null;
+}
+async function backendSet(key, value){
+  if(backend === 'claude'){ await window.storage.set(key, value, false); return; }
+  if(backend === 'local'){ localStorage.setItem(key, value); return; }
+  throw new Error('no storage backend available');
+}
+
+// null = unknown/checking, true = confirmed working, false = confirmed NOT persisting on this device
+let storageWorking = null;
+
+// Prove persistence actually round-trips, rather than inferring it from error shapes.
+async function verifyStorage(){
+  if(claudeStorageAvailable()){
+    backend = 'claude';
+    try{
+      const probe = 'ok-' + Date.now();
+      await backendSet('icelandic-storage-check', probe);
+      const val = await backendGet('icelandic-storage-check');
+      if(val === probe) return true;
+    }catch(e){ console.warn('Claude storage round-trip failed:', e); }
+  }
+  if(localStorageAvailable()){
+    backend = 'local';
+    return true;
+  }
+  backend = null;
+  return false;
+}
+
+async function loadProgress(){
+  storageWorking = await verifyStorage();
+  if(!storageWorking){ progress = {}; return; }
+  try{
+    const val = await backendGet('icelandic-progress');
+    if(val){ progress = JSON.parse(val); }
+  }catch(e){
+    progress = {}; // no saved progress yet — normal on first run
+  }
+}
+
+// Serialized save queue: only one write in flight at a time, so rapid
+// card ratings can't fire overlapping writes against each other.
+let saveTimer = null;
+let saveInFlight = false;
+let pendingSnapshot = null;
+
+function saveProgress(){
+  pendingSnapshot = JSON.stringify(progress);
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(flushSave, 250);
+}
+
+async function flushSave(){
+  if(saveInFlight){ saveTimer = setTimeout(flushSave, 200); return; } // wait for current write, then retry
+  if(pendingSnapshot === null) return;
+  if(!backend){ storageWorking = false; refreshStorageBanner(); return; }
+
+  const snapshot = pendingSnapshot;
+  pendingSnapshot = null;
+  saveInFlight = true;
+  try{
+    await backendSet('icelandic-progress', snapshot);
+    storageWorking = true;
+  }catch(e){
+    storageWorking = false;
+    console.warn('Progress save failed — use the backup code on the home screen.', e);
+    // put it back so the next successful save (or manual export) still has the latest state
+    if(pendingSnapshot === null) pendingSnapshot = snapshot;
+  }finally{
+    saveInFlight = false;
+    refreshStorageBanner();
+    if(pendingSnapshot !== null){ saveTimer = setTimeout(flushSave, 400); }
+  }
+}
+
+function refreshStorageBanner(){
+  // Only re-render if the home screen is currently visible, so we don't interrupt a lesson.
+  const home = document.getElementById('home');
+  if(home && home.style.display !== 'none'){ renderHome(); }
+}
+
+/* ---- Manual backup fallback (used when on-device storage isn't persisting) ---- */
+function exportProgress(){
+  try{
+    const code = btoa(unescape(encodeURIComponent(JSON.stringify(progress))));
+    const el = document.getElementById('backup-code');
+    if(el){ el.value = code; el.removeAttribute('readonly'); el.focus(); el.select(); el.setAttribute('readonly','true'); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(code).catch(()=>{});
+    }
+    const status = document.getElementById('backup-status');
+    if(status) status.textContent = 'Copied — paste it somewhere safe (Notes app works well).';
+  }catch(e){
+    const status = document.getElementById('backup-status');
+    if(status) status.textContent = 'Could not generate a code — try again.';
+  }
+}
+
+function importProgress(){
+  const el = document.getElementById('restore-input');
+  const status = document.getElementById('backup-status');
+  if(!el || !el.value.trim()){ if(status) status.textContent = 'Paste your backup code first.'; return; }
+  try{
+    const decoded = JSON.parse(decodeURIComponent(escape(atob(el.value.trim()))));
+    progress = Object.assign({}, progress, decoded);
+    saveProgress();
+    if(status) status.textContent = 'Restored. Your route below is up to date.';
+    renderHome();
+  }catch(e){
+    if(status) status.textContent = "That code didn't look right — check you copied the whole thing.";
+  }
+}
+
+/* ============================= VOICE ============================= */
+function initVoice(){
+  if(!('speechSynthesis' in window)) return;
+  const pick = ()=>{
+    const voices = speechSynthesis.getVoices();
+    icelandicVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('is')) || null;
+  };
+  pick();
+  speechSynthesis.onvoiceschanged = pick;
+}
+function speak(text){
+  if(!icelandicVoice) return;
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.voice = icelandicVoice;
+    u.lang = icelandicVoice.lang;
+    u.rate = 0.85;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+function forvoUrl(text){
+  // Forvo hosts real native-speaker recordings, linked here — not embedded/scraped.
+  // Coverage is best for single common words, spottier for constructed phrases and place names.
+  const slug = text
+    .toLowerCase()
+    .replace(/[?!.,]/g, '')
+    .trim()
+    .replace(/\s+/g, '_');
+  return 'https://forvo.com/word/' + encodeURIComponent(slug) + '/';
+}
+
+/* ============================= HOME RENDER ============================= */
+function daysUntilTrip(){
+  const ms = TRIP_DATE - new Date();
+  return Math.max(0, Math.ceil(ms / 86400000));
+}
+
+function lessonStats(lesson){
+  const items = lesson.items;
+  let mastered = 0, started = 0, due = 0;
+  items.forEach(item=>{
+    const e = progress[cardKey(lesson.id, item.is)];
+    if(!e){ return; }
+    started++;
+    if(e.streak >= 4) mastered++;
+    if(isDue(e)) due++;
+  });
+  return {total: items.length, mastered, started, due};
+}
+
+function totalDueCount(){
+  let n = 0;
+  LESSONS.forEach(l=>{
+    if(l.kind !== 'cards') return;
+    l.items.forEach(item=>{
+      const e = progress[cardKey(l.id, item.is)];
+      if(!e || isDue(e)) n++;
+    });
+  });
+  return n;
+}
+
+function renderHome(){
+  const daysLeft = daysUntilTrip();
+  document.getElementById('countdown-text').textContent =
+    daysLeft + ' day' + (daysLeft===1?'':'s') + ' to Iceland';
+
+  const due = totalDueCount();
+  const banner = document.getElementById('due-banner');
+  if(daysLeft <= 4){
+    banner.classList.remove('empty');
+    banner.innerHTML = `<div class="due-text">Trip's close — a full pass over every word beats waiting on individual due dates now.</div><button class="due-btn" onclick="startFinalReview()">Final Review</button>`;
+  } else if(due > 0){
+    banner.classList.remove('empty');
+    banner.innerHTML = `<div class="due-text">You have <b>${due}</b> word${due===1?'':'s'} ready to review, mixed across your route.</div><button class="due-btn" onclick="startDueReview()">Review</button>`;
+  } else {
+    banner.classList.add('empty');
+    banner.innerHTML = `<div class="due-text">All caught up. Start a new stop below, or come back tomorrow.</div>`;
+  }
+
+  const storageBanner = document.getElementById('storage-banner');
+  const footerNote = document.getElementById('footer-note');
+  if(storageWorking === false){
+    storageBanner.innerHTML = `
+      <div class="storage-banner">
+        <p class="storage-banner-title">Progress isn't saving automatically here</p>
+        <p class="storage-banner-text">On-device storage isn't available in this view, so reviews won't be remembered between visits unless you back them up manually below.</p>
+        <div class="backup-actions">
+          <div class="backup-row">
+            <button class="backup-btn primary" onclick="exportProgress()">Copy backup code</button>
+          </div>
+          <input class="backup-code" id="backup-code" readonly placeholder="Your code will appear here">
+          <div class="backup-row">
+            <input class="backup-input" id="restore-input" placeholder="Paste a backup code to restore">
+            <button class="backup-btn" onclick="importProgress()">Restore</button>
+          </div>
+          <p class="backup-status" id="backup-status"></p>
+        </div>
+      </div>`;
+    footerNote.innerHTML = 'Copy a backup code above before you close this tab.<br>Tap a stop to start or review its lesson.';
+  } else if(storageWorking === true){
+    storageBanner.innerHTML = '';
+    footerNote.innerHTML = 'Progress saves automatically on this device.<br>Tap a stop to start or review its lesson.';
+  } else {
+    storageBanner.innerHTML = '';
+    footerNote.innerHTML = 'Checking whether progress is saving on this device…<br>Tap a stop to start or review its lesson.';
+  }
+
+  const stopsEl = document.getElementById('stops');
+  stopsEl.innerHTML = '';
+  LESSONS.forEach((lesson, i)=>{
+    const stats = lesson.kind === 'primer'
+      ? {total: lesson.items.length, mastered: 0, started: 0, due: 0}
+      : lessonStats(lesson);
+
+    const isPrimer = lesson.kind === 'primer';
+    let nodeClass = 'node';
+    let nodeInner = (i+1);
+    if(!isPrimer){
+      if(stats.mastered === stats.total && stats.total > 0){ nodeClass += ' mastered'; nodeInner = checkSVG(); }
+      else if(stats.due > 0 && stats.started > 0){ nodeClass += ' due'; }
+      else if(stats.started > 0){ nodeClass += ' started'; }
+    } else if (progress['_primer_seen_'+lesson.id]) {
+      nodeClass += ' mastered'; nodeInner = checkSVG();
+    }
+
+    const pips = isPrimer ? '' : `<div class="progress-pips">${
+      lesson.items.map(item=>{
+        const e = progress[cardKey(lesson.id, item.is)];
+        const on = e && e.streak >= 2;
+        return `<div class="pip ${on?'on':''}"></div>`;
+      }).join('')
+    }</div>`;
+
+    let metaText;
+    if(isPrimer){
+      metaText = lesson.items.length + ' sound rules';
+    } else if(stats.due > 0){
+      metaText = `<span class="due-tag">${stats.due} due</span> · ${stats.total} phrases`;
+    } else if(stats.mastered === stats.total){
+      metaText = `<span class="mastered-tag">mastered</span> · ${stats.total} phrases`;
+    } else if(stats.started > 0){
+      metaText = `${stats.started}/${stats.total} started`;
+    } else {
+      metaText = `${stats.total} phrases · not started`;
+    }
+
+    const div = document.createElement('div');
+    div.className = 'stop';
+    div.onclick = ()=> openLesson(lesson.id);
+    div.innerHTML = `
+      <div class="${nodeClass}">${nodeInner}</div>
+      <div class="stop-body">
+        <p class="stop-name">${lesson.name}</p>
+        <p class="stop-meta">${metaText}</p>
+        ${pips}
+      </div>
+    `;
+    stopsEl.appendChild(div);
+  });
+}
+
+function checkSVG(){
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="#0C1210" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`;
+}
+
+/* ============================= LESSON FLOW ============================= */
+function shuffle(arr){
+  // Fisher-Yates — every session gets a fresh order, so you're retrieving
+  // from the word itself, not from remembering "card 4 comes after card 3."
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+let reviewMode = false; // true when running a mixed cross-lesson due-review session
+
+function openLesson(id){
+  const lesson = LESSONS.find(l=>l.id===id);
+  currentLesson = lesson;
+  reviewMode = false;
+  document.getElementById('home').style.display = 'none';
+  document.getElementById('lesson').classList.add('active');
+  document.getElementById('lesson-title').textContent = lesson.name;
+
+  if(lesson.kind === 'primer'){
+    renderPrimer(lesson);
+    return;
+  }
+
+  queue = shuffle(lesson.items.map((_, idx)=> ({lid: lesson.id, idx})));
+  qIndex = 0;
+  revealed = false;
+  renderCard();
+}
+
+function startDueReview(){
+  const entries = [];
+  LESSONS.forEach(l=>{
+    if(l.kind !== 'cards') return;
+    l.items.forEach((item, idx)=>{
+      const e = progress[cardKey(l.id, item.is)];
+      if(!e || isDue(e)) entries.push({lid: l.id, idx});
+    });
+  });
+  if(entries.length === 0) return;
+
+  currentLesson = null;
+  reviewMode = true;
+  document.getElementById('home').style.display = 'none';
+  document.getElementById('lesson').classList.add('active');
+  document.getElementById('lesson-title').textContent = 'Mixed Review';
+
+  queue = shuffle(entries);
+  qIndex = 0;
+  revealed = false;
+  renderCard();
+}
+
+// A consolidated pass across every word, regardless of individual due dates —
+// the evidence for one comprehensive review shortly before a target date is
+// separate from (and additional to) ongoing spaced review.
+function startFinalReview(){
+  const entries = [];
+  LESSONS.forEach(l=>{
+    if(l.kind !== 'cards') return;
+    l.items.forEach((item, idx)=> entries.push({lid: l.id, idx}));
+  });
+  if(entries.length === 0) return;
+
+  currentLesson = null;
+  reviewMode = true;
+  document.getElementById('home').style.display = 'none';
+  document.getElementById('lesson').classList.add('active');
+  document.getElementById('lesson-title').textContent = 'Final Review';
+
+  queue = shuffle(entries);
+  qIndex = 0;
+  revealed = false;
+  renderCard();
+}
+
+function goHome(){
+  document.getElementById('lesson').classList.remove('active');
+  document.getElementById('home').style.display = 'block';
+  renderHome();
+}
+
+function renderPrimer(lesson){
+  progress['_primer_seen_'+lesson.id] = true;
+  saveProgress();
+  document.getElementById('lesson-count').textContent = lesson.items.length + ' rules';
+  const area = document.getElementById('card-area');
+  area.innerHTML = `<div class="primer-list">
+    <p style="color:var(--mist);font-size:13.5px;line-height:1.6;margin:0 0 16px;padding:0 2px;">${lesson.desc}</p>
+    ${lesson.items.map(it=>`
+      <div class="primer-item">
+        <span class="primer-letter">${it.letter}</span>
+        <p class="primer-rule">${it.rule}</p>
+        <div class="primer-example">
+          <span>${it.is}</span><span class="arrow">→</span><span>${it.pron}</span>
+        </div>
+        ${it.note ? `<p style="color:var(--mist-dim);font-size:12px;margin:6px 0 0;">${it.note}</p>` : ''}
+      </div>
+    `).join('')}
+    <div class="tap-forward" style="padding-top:6px;">
+      <button class="tap-btn" onclick="goHome()">Got it — back to route</button>
+    </div>
+  </div>`;
+}
+
+function renderCard(){
+  if(qIndex >= queue.length){
+    renderDone();
+    return;
+  }
+  const entry = queue[qIndex];
+  const lesson = LESSONS.find(l=>l.id===entry.lid);
+  const item = lesson.items[entry.idx];
+  revealed = false;
+  document.getElementById('lesson-count').textContent = (qIndex+1) + '/' + queue.length;
+
+  const area = document.getElementById('card-area');
+  area.innerHTML = `
+    <div class="card-stage">
+      <div class="card" id="flip-card" onclick="revealCard()">
+        <p class="card-is">${item.is}</p>
+        <div class="audio-row" onclick="event.stopPropagation()">
+          <button class="speak-btn ${icelandicVoice? '' : 'disabled'}" onclick="speak('${item.is.replace(/'/g,"\\'")}')" title="Play on-device voice">
+            <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7" stroke="#6FB8D6" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+          </button>
+          <a class="forvo-link" href="${forvoUrl(item.is)}" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#E8A33D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+            Forvo
+          </a>
+        </div>
+        <p class="flip-hint">tap card to reveal</p>
+        <div class="reveal" id="reveal-block">
+          <p class="reveal-en">${item.en || ''}</p>
+          <p class="reveal-pron">${item.pron}</p>
+          ${item.note ? `<p class="reveal-note">${item.note}</p>` : ''}
+          ${item.ex ? `<div class="reveal-ex">
+            <p class="reveal-ex-label">In context</p>
+            <p class="reveal-ex-is">${item.ex.is}</p>
+            <p class="reveal-ex-en">${item.ex.en}</p>
+          </div>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="rate-row hidden" id="rate-row">
+      <button class="rate-btn rate-again" onclick="rate(0)">Again<small>seconds</small></button>
+      <button class="rate-btn rate-hard" onclick="rate(1)">Hard<small>1 day</small></button>
+      <button class="rate-btn rate-good" onclick="rate(2)">Good<small>3 days</small></button>
+      <button class="rate-btn rate-easy" onclick="rate(3)">Easy<small>1 week+</small></button>
+    </div>
+  `;
+}
+
+function revealCard(){
+  if(revealed) return;
+  revealed = true;
+  document.getElementById('reveal-block').classList.add('show');
+  document.querySelector('.flip-hint').style.display = 'none';
+  document.getElementById('rate-row').classList.remove('hidden');
+}
+
+function rate(score){
+  const entry = queue[qIndex];
+  const lesson = LESSONS.find(l=>l.id===entry.lid);
+  const item = lesson.items[entry.idx];
+  const key = cardKey(lesson.id, item.is);
+  const progEntry = progress[key] || {streak: 0, reps: 0};
+  progEntry.reps = (progEntry.reps || 0) + 1;
+
+  if(score === 0){ // again
+    progEntry.streak = 0;
+    queue.push(entry); // re-show later this session
+    const due = new Date(); due.setMinutes(due.getMinutes() + 1);
+    progEntry.due = due.toISOString();
+  } else {
+    if(score === 1) progEntry.streak = Math.max(0, (progEntry.streak||0)); // hard: hold
+    if(score === 2) progEntry.streak = (progEntry.streak||0) + 1; // good
+    if(score === 3) progEntry.streak = (progEntry.streak||0) + 2; // easy
+    progEntry.streak = Math.min(progEntry.streak, STAGE_INTERVALS_DAYS.length - 1);
+    const days = STAGE_INTERVALS_DAYS[progEntry.streak];
+    const due = new Date();
+    if(score === 1) due.setDate(due.getDate() + 1);
+    else due.setDate(due.getDate() + Math.max(days,1));
+    progEntry.due = due.toISOString();
+  }
+
+  progress[key] = progEntry;
+  saveProgress();
+  qIndex++;
+  renderCard();
+}
+
+function renderDone(){
+  const area = document.getElementById('card-area');
+  const label = reviewMode ? 'Mixed review' : currentLesson.name;
+  area.innerHTML = `
+    <div class="done-wrap">
+      <p class="display">Stop complete.</p>
+      <p>${label} — nice work. Reviews will resurface here as they come due.</p>
+      <div class="tap-forward" style="margin-top:18px;">
+        <button class="tap-btn" onclick="goHome()">Back to the route</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================= INIT ============================= */
+(async function init(){
+  await loadProgress();
+  initVoice();
+  renderHome();
+})();
+</script>
+</body>
+</html>
