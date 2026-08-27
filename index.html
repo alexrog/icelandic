@@ -978,7 +978,7 @@ function rate(score){
   const progEntry = progress[key] || {streak: 0, reps: 0};
   progEntry.reps = (progEntry.reps || 0) + 1;
 
-  if(score === 0){ // again
+  if(score === 0){ // again — short same-session reshow, stays clock-relative
     progEntry.streak = 0;
     reinsertMissed(entry); // land somewhere random in what's left, not predictably at the end
     const due = new Date(); due.setMinutes(due.getMinutes() + 1);
@@ -989,9 +989,13 @@ function rate(score){
     if(score === 3) progEntry.streak = (progEntry.streak||0) + 2; // easy
     progEntry.streak = Math.min(progEntry.streak, STAGE_INTERVALS_DAYS.length - 1);
     const days = STAGE_INTERVALS_DAYS[progEntry.streak];
+    const scheduledDays = score === 1 ? 1 : Math.max(days, 1);
+    // Land at local midnight of the target calendar day, not the exact clock
+    // time of this review — so "1 day" means "available tomorrow morning,"
+    // not "available 24 hours from whatever time I happened to study."
     const due = new Date();
-    if(score === 1) due.setDate(due.getDate() + 1);
-    else due.setDate(due.getDate() + Math.max(days,1));
+    due.setDate(due.getDate() + scheduledDays);
+    due.setHours(0, 0, 0, 0);
     progEntry.due = due.toISOString();
   }
 
