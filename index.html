@@ -3,1044 +3,670 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Leiðin — Icelandic for the Road</title>
+<title>Leiðin</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+  :root {
+    --bg: #f5f6f4;
+    --ink: #1b2420;
+    --ink-soft: #5c6660;
+    --line: #d9dcd6;
+    --glacier: #2f6f6a;
+    --glacier-deep: #204c48;
+    --warn: #a8492f;
+    --card-bg: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+  }
+  #app {
+    max-width: 420px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 18px 28px;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .wordmark {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .due-count {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .icon-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    padding: 4px 6px;
+    line-height: 1;
+  }
+  .icon-btn:active { color: var(--ink); }
 
-:root{
-  --basalt:#14171A;
-  --basalt-2:#1C2023;
-  --basalt-3:#252A2E;
-  --glacier:#EEF3EF;
-  --mist:#8B98A0;
-  --mist-dim:#5C666C;
-  --aurora:#6FE3A6;
-  --aurora-dim:#3E7A5C;
-  --sulfur:#E8A33D;
-  --skyline:#6FB8D6;
-  --lava:#E0654A;
-  --line:#2E3438;
-  --radius:14px;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{margin:0;padding:0;}
-body{
-  background:var(--basalt);
-  color:var(--glacier);
-  font-family:'Inter',sans-serif;
-  min-height:100vh;
-  overscroll-behavior:none;
-}
-::selection{background:var(--aurora-dim);color:var(--glacier);}
-.mono{font-family:'IBM Plex Mono',monospace;}
-.display{font-family:'Fraunces',serif;}
+  main { flex: 1; display: flex; flex-direction: column; }
 
-#app{max-width:520px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:24px;}
+  /* ---- Review card ---- */
+  .review-shell {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 18px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 48px 24px;
+    text-align: center;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .card .category-tag {
+    font-size: 12px;
+    color: var(--glacier);
+    text-transform: lowercase;
+  }
+  .card .prompt {
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .card .answer {
+    font-size: 20px;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
+    margin-top: 4px;
+    width: 100%;
+  }
+  .card .mnemonic {
+    font-size: 14px;
+    color: var(--glacier-deep);
+    font-style: italic;
+    max-width: 280px;
+  }
+  .card .tap-hint {
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .grades {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .grades button {
+    padding: 14px 4px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background: var(--card-bg);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .grades button:active { background: var(--bg); }
+  .grades .didnt { color: var(--warn); }
+  .grades .unsure { color: #8a6d1f; }
+  .grades .ez { color: var(--glacier-deep); }
 
-/* ---------- HOME ---------- */
-.home-header{padding:28px 20px 8px;}
-.eyebrow{
-  font-family:'IBM Plex Mono',monospace;
-  font-size:12px;letter-spacing:0.08em;text-transform:uppercase;
-  color:var(--sulfur);margin:0 0 10px;
-}
-.title{
-  font-family:'Fraunces',serif;font-weight:600;font-size:34px;line-height:1.05;
-  margin:0 0 6px;color:var(--glacier);
-  font-variation-settings:'opsz' 40;
-}
-.subtitle{color:var(--mist);font-size:14.5px;line-height:1.5;margin:0 0 22px;max-width:44ch;}
+  .empty-state {
+    text-align: center;
+    padding: 60px 12px;
+    color: var(--ink-soft);
+  }
+  .empty-state .big { font-size: 17px; color: var(--ink); margin-bottom: 8px; }
 
-.due-banner{
-  margin:0 20px 26px;padding:14px 16px;border-radius:var(--radius);
-  background:linear-gradient(135deg, rgba(111,227,166,0.14), rgba(111,184,214,0.08));
-  border:1px solid rgba(111,227,166,0.25);
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-}
-.due-banner.empty{background:var(--basalt-2);border:1px solid var(--line);}
-.due-text{font-size:13.5px;color:var(--glacier);line-height:1.4;}
-.due-text b{color:var(--aurora);font-family:'IBM Plex Mono',monospace;font-weight:600;}
-.due-btn{
-  background:var(--aurora);color:#0C1210;border:none;border-radius:999px;
-  padding:9px 16px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;
-  white-space:nowrap;cursor:pointer;
-}
-.due-btn:active{transform:scale(0.97);}
+  /* ---- Settings ---- */
+  .panel {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .panel h3 {
+    font-size: 13px;
+    text-transform: lowercase;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+    font-weight: 600;
+  }
+  .cat-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 15px;
+  }
+  .cat-row:last-child { border-bottom: none; }
+  .cat-row .count { color: var(--ink-soft); font-size: 13px; }
+  .toggle {
+    width: 40px; height: 24px;
+    border-radius: 12px;
+    background: var(--line);
+    position: relative;
+    cursor: pointer;
+    border: none;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--glacier); }
+  .toggle::after {
+    content: "";
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: white;
+    transition: transform .15s ease;
+  }
+  .toggle.on::after { transform: translateX(16px); }
+  .text-btn {
+    background: none;
+    border: none;
+    color: var(--glacier);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 10px 0;
+  }
+  .danger-text { color: var(--warn); }
+  .back-row { margin-bottom: 18px; }
+  .note {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
 
-.storage-banner{
-  margin:0 20px 26px;padding:16px;border-radius:var(--radius);
-  background:rgba(224,101,74,0.08);border:1px solid rgba(224,101,74,0.3);
-}
-.storage-banner-title{font-size:13.5px;font-weight:600;color:var(--lava);margin:0 0 4px;}
-.storage-banner-text{font-size:12.5px;color:var(--mist);line-height:1.5;margin:0 0 12px;}
-.backup-actions{display:flex;flex-direction:column;gap:8px;}
-.backup-row{display:flex;gap:8px;}
-.backup-btn{
-  background:var(--basalt-3);border:1px solid var(--line);color:var(--glacier);
-  border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:600;
-  cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;
-}
-.backup-btn.primary{background:var(--sulfur);color:#241705;border:none;}
-.backup-input, .backup-code{
-  flex:1;background:var(--basalt);border:1px solid var(--line);border-radius:10px;
-  padding:9px 12px;font-size:12px;color:var(--glacier);font-family:'IBM Plex Mono',monospace;
-  min-width:0;
-}
-.backup-status{font-size:11.5px;color:var(--sulfur);margin:2px 0 0;min-height:14px;}
-
-/* Route visualization */
-.route-wrap{padding:6px 20px 20px;position:relative;}
-.route-line{
-  position:absolute;left:38px;top:6px;bottom:20px;width:2px;
-  background:repeating-linear-gradient(to bottom, var(--line) 0 6px, transparent 6px 12px);
-}
-.stop{
-  position:relative;display:flex;gap:16px;align-items:flex-start;
-  padding:11px 0;cursor:pointer;
-}
-.stop:active{opacity:0.75;}
-.node{
-  flex:none;width:34px;height:34px;border-radius:50%;
-  background:var(--basalt-2);border:2px solid var(--line);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--mist);
-  z-index:1;position:relative;
-}
-.node.mastered{background:var(--aurora);border-color:var(--aurora);color:#0C1210;}
-.node.started{border-color:var(--sulfur);color:var(--sulfur);}
-.node.due{border-color:var(--lava);}
-.node svg{width:16px;height:16px;}
-.stop-body{flex:1;padding-top:2px;}
-.stop-name{font-size:15.5px;font-weight:600;color:var(--glacier);margin:0 0 2px;}
-.stop-meta{font-size:12px;color:var(--mist-dim);font-family:'IBM Plex Mono',monospace;}
-.stop-meta .due-tag{color:var(--lava);}
-.stop-meta .mastered-tag{color:var(--aurora);}
-.progress-pips{display:flex;gap:3px;margin-top:6px;}
-.pip{width:14px;height:4px;border-radius:2px;background:var(--line);}
-.pip.on{background:var(--aurora);}
-
-/* ---------- LESSON / CARD VIEW ---------- */
-.screen{position:absolute;inset:0;background:var(--basalt);min-height:100vh;display:none;}
-.screen.active{display:block;}
-.topbar{
-  display:flex;align-items:center;gap:12px;padding:16px 16px 10px;
-  position:sticky;top:0;background:var(--basalt);z-index:5;
-}
-.back-btn{
-  background:none;border:1px solid var(--line);color:var(--mist);
-  width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;flex:none;
-}
-.topbar-title{font-size:14px;font-weight:600;color:var(--glacier);flex:1;}
-.topbar-count{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--mist);}
-
-.card-stage{padding:10px 20px 20px;}
-.card{
-  background:var(--basalt-2);border:1px solid var(--line);border-radius:20px;
-  min-height:320px;padding:32px 24px;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;text-align:center;gap:10px;
-  cursor:pointer;position:relative;overflow:hidden;
-}
-.card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--aurora),var(--skyline));
-}
-.card-tag{
-  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;
-  text-transform:uppercase;color:var(--mist-dim);position:absolute;top:16px;left:20px;
-}
-.card-is{
-  font-family:'Fraunces',serif;font-weight:600;font-size:30px;color:var(--glacier);
-  line-height:1.15;font-variation-settings:'opsz' 30;
-}
-.speak-btn{
-  background:var(--basalt-3);border:1px solid var(--line);border-radius:999px;
-  width:38px;height:38px;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;margin-top:2px;
-}
-.speak-btn svg{width:16px;height:16px;fill:var(--skyline);}
-.speak-btn:active{transform:scale(0.95);}
-.speak-btn.disabled{opacity:0.3;pointer-events:none;}
-.audio-row{display:flex;gap:8px;align-items:center;margin-top:2px;}
-.forvo-link{
-  display:flex;align-items:center;gap:6px;
-  background:var(--basalt-3);border:1px solid var(--line);border-radius:999px;
-  padding:0 14px;height:38px;
-  font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;color:var(--sulfur);
-  text-decoration:none;cursor:pointer;
-}
-.forvo-link:active{transform:scale(0.96);}
-.forvo-link svg{width:13px;height:13px;flex:none;}
-
-.flip-hint{color:var(--mist-dim);font-size:12px;margin-top:6px;}
-.reveal{display:none;flex-direction:column;align-items:center;gap:10px;width:100%;}
-.reveal.show{display:flex;}
-.reveal-en{font-size:17px;color:var(--glacier);font-weight:500;}
-.reveal-pron{
-  font-family:'IBM Plex Mono',monospace;font-size:14.5px;color:var(--sulfur);
-  background:rgba(232,163,61,0.1);padding:5px 12px;border-radius:8px;
-}
-.reveal-note{font-size:12.5px;color:var(--mist);line-height:1.5;max-width:32ch;margin-top:2px;}
-.reveal-ex{
-  margin-top:8px;padding:10px 14px;border-radius:10px;background:var(--basalt-3);
-  border:1px solid var(--line);max-width:34ch;text-align:left;
-}
-.reveal-ex-label{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mist-dim);margin:0 0 4px;}
-.reveal-ex-is{font-size:13.5px;color:var(--glacier);font-style:italic;margin:0;}
-.reveal-ex-en{font-size:12px;color:var(--mist);margin:3px 0 0;}
-
-.rate-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:16px 20px 4px;}
-.rate-row.hidden{display:none;}
-.rate-btn{
-  border:none;border-radius:12px;padding:12px 4px;font-family:'Inter',sans-serif;
-  font-size:12.5px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;gap:3px;align-items:center;
-}
-.rate-btn small{font-family:'IBM Plex Mono',monospace;font-size:10px;opacity:0.75;font-weight:500;}
-.rate-again{background:rgba(224,101,74,0.15);color:var(--lava);}
-.rate-hard{background:rgba(232,163,61,0.15);color:var(--sulfur);}
-.rate-good{background:rgba(111,184,214,0.15);color:var(--skyline);}
-.rate-easy{background:rgba(111,227,166,0.15);color:var(--aurora);}
-.rate-btn:active{transform:scale(0.96);}
-
-.tap-forward{padding:0 20px;}
-.tap-btn{
-  width:100%;background:var(--aurora);color:#0C1210;border:none;border-radius:12px;
-  padding:14px;font-size:14.5px;font-weight:600;cursor:pointer;
-}
-.tap-btn:active{transform:scale(0.98);}
-
-.done-wrap{padding:60px 30px;text-align:center;}
-.done-wrap .display{font-size:26px;margin-bottom:8px;}
-.done-wrap p{color:var(--mist);font-size:14px;line-height:1.6;}
-
-/* Primer (reference) list */
-.primer-list{padding:8px 20px 20px;}
-.primer-item{
-  background:var(--basalt-2);border:1px solid var(--line);border-radius:14px;
-  padding:16px 18px;margin-bottom:10px;
-}
-.primer-letter{
-  font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--sulfur);
-  display:inline-block;min-width:44px;
-}
-.primer-rule{font-size:13.5px;color:var(--glacier);margin:6px 0 8px;line-height:1.5;}
-.primer-example{
-  font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--skyline);
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-}
-.primer-example .arrow{color:var(--mist-dim);}
-
-.footer-note{padding:10px 20px 30px;color:var(--mist-dim);font-size:11.5px;text-align:center;line-height:1.6;}
+  /* ---- Onboarding import ---- */
+  .import-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .import-row .term { font-size: 15px; }
+  .import-row .term .en { display: block; font-size: 12px; color: var(--ink-soft); }
+  .import-grades { display: flex; gap: 6px; }
+  .import-grades button {
+    font-size: 11px;
+    padding: 6px 8px;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+    background: var(--card-bg);
+    cursor: pointer;
+  }
+  .import-grades button.chosen.didnt { background: var(--warn); color: white; border-color: var(--warn); }
+  .import-grades button.chosen.unsure { background: #8a6d1f; color: white; border-color: #8a6d1f; }
+  .import-grades button.chosen.ez { background: var(--glacier-deep); color: white; border-color: var(--glacier-deep); }
 </style>
 </head>
 <body>
-<div id="app">
-
-  <!-- HOME SCREEN -->
-  <div id="home">
-    <div class="home-header">
-      <p class="eyebrow" id="countdown-text">— days to Iceland</p>
-      <h1 class="title">Leiðin</h1>
-      <p class="subtitle">The route to a few good words. Short daily lessons, spaced repeats, and pronunciation built for your southern coast drive.</p>
-    </div>
-
-    <div id="due-banner" class="due-banner"></div>
-    <div id="storage-banner"></div>
-
-    <div class="route-wrap">
-      <div class="route-line"></div>
-      <div id="stops"></div>
-    </div>
-
-    <p class="footer-note" id="footer-note">Checking whether progress is saving on this device…<br>Tap a stop to start or review its lesson.</p>
-  </div>
-
-  <!-- LESSON SCREEN -->
-  <div id="lesson" class="screen">
-    <div class="topbar">
-      <button class="back-btn" onclick="goHome()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B98A0" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <div class="topbar-title" id="lesson-title">—</div>
-      <div class="topbar-count" id="lesson-count">1/1</div>
-    </div>
-
-    <div id="card-area"></div>
-  </div>
-
-</div>
+<div id="app"></div>
 
 <script>
-/* ============================= CONTENT ============================= */
-/* pron notation key shown in Lesson 0:
-   TH = voiceless th (thin) [þ]   DH = voiced th (this) [ð]
-   KV = hv-   |  TL = ll   |  EYE = æ  |  UR = ö
-   Stress is always the FIRST syllable. Capitals = stressed syllable. */
+/* =========================================================
+   LEIÐIN — data model
+   ========================================================= */
 
-const LESSONS = [
-  {
-    id:"sounds", name:"Sounds First", kind:"cards",
-    desc:"Do this stop first, and let it come back around a few times before moving on — one read-through won't stick.",
-    items:[
-      {is:"Þingvellir", en:"þ → voiceless \"th\" (as in \"thin\") — never voiced", pron:"THING-vet-lir", note:"the rift valley / historic parliament site"},
-      {is:"maður", en:"ð → voiced \"th\" (as in \"this\") — softer, never starts a word", pron:"MAH-dhur", note:"means \"person / man\" — contrast with þ above"},
-      {is:"Hvalfjörður", en:"hv → pronounced \"kv,\" not \"w\" or \"wh\"", pron:"KVAL-fyur-dhur", note:"literally \"whale fjord\""},
-      {is:"jökull", en:"ll → a sharp \"tl\" sound, not a soft English \"L\"", pron:"YUR-kutl", note:"means \"glacier\" — you'll see this constantly"},
-      {is:"bær", en:"æ → like the \"eye\" in \"eye,\" or \"i\" in \"fine\"", pron:"byre", note:"means \"town\""},
-      {is:"höfn", en:"ö → like German ö, or \"u\" in \"fur\" with rounded lips", pron:"HUPN", note:"means \"harbor\" — also your route's endpoint"},
-      {is:"á", en:"á → like the \"ow\" in \"cow\"", pron:"OW", note:"as in \"á\" (river/stream)"},
-      {is:"vík", en:"í → a clean \"ee\" sound", pron:"VEEK", note:"means \"bay/cove\" — as in Vík í Mýrdal"},
-      {is:"sól", en:"ó → like the \"oh\" in \"go\"", pron:"SOHL", note:"means \"sun\""},
-      {is:"þú", en:"ú → like the \"oo\" in \"moon\"", pron:"THOO", note:"means \"you\""},
-      {is:"Mýrdal", en:"ý → same sound as í, a clean \"ee\"", pron:"MEER-dal", note:"the valley behind Vík's full name"},
-      {is:"Eyjafjallajökull", en:"stress always falls on the FIRST syllable — no exceptions", pron:"AY-yah-fyat-lah-yur-kutl", note:"you only need the first two syllables to be understood"}
-    ]
-  },
-  {
-    id:"greet", name:"Greetings & Manners", kind:"cards",
-    desc:"Just the essentials — enough to open and close an interaction politely.",
-    items:[
-      {is:"Halló", en:"Hello", pron:"hah-LOH", ex:{is:"Halló! Ég heiti Alex.", en:"Hello! I'm Alex."}},
-      {is:"Já", en:"Yes", pron:"yow", ex:{is:"Já, takk fyrir.", en:"Yes, thank you."}},
-      {is:"Nei", en:"No", pron:"nay", ex:{is:"Nei, því miður.", en:"No, unfortunately."}},
-      {is:"Takk", en:"Thanks", pron:"tahk", ex:{is:"Takk fyrir matinn.", en:"Thanks for the meal."}},
-      {is:"Bless", en:"Bye", pron:"bless", ex:{is:"Bless, sjáumst á morgun.", en:"Bye, see you tomorrow."}}
-    ]
-  },
-  {
-    id:"shops", name:"Shops & Errands", kind:"cards",
-    desc:"Words you'll see on signs, doors, and receipts — not lines to say.",
-    items:[
-      {is:"Opið", en:"Open", pron:"OH-pidh", ex:{is:"Opið til kl. 22", en:"Open until 10pm"}},
-      {is:"Lokað", en:"Closed", pron:"LOH-kadh", ex:{is:"Lokað á sunnudögum", en:"Closed on Sundays"}},
-      {is:"Poki", en:"Bag", pron:"POH-ki", ex:{is:"Þarf ég poka?", en:"Do I need a bag?"}},
-      {is:"Kvittun", en:"Receipt", pron:"KVIT-tun", ex:{is:"Má ég fá kvittun?", en:"Can I get a receipt?"}},
-      {is:"Verð", en:"Price", pron:"verdh", ex:{is:"verð með vsk", en:"price including tax"}},
-      {is:"Afsláttur", en:"Discount", pron:"AHF-slowt-tur"},
-      {is:"Útsala", en:"Sale / clearance", pron:"OOT-sah-la"},
-      {is:"Kassi", en:"Checkout / till", pron:"KAH-si"}
-    ]
-  },
-  {
-    id:"numbers", name:"Numbers & Time", kind:"cards",
-    desc:"Prices, headcounts, and the clock.",
-    items:[
-      {is:"einn", en:"one", pron:"ay-tn", ex:{is:"einn kaffibolli", en:"one cup of coffee"}},
-      {is:"tveir", en:"two", pron:"tvay-r", ex:{is:"tveir fullorðnir", en:"two adults"}},
-      {is:"þrír", en:"three", pron:"threer", ex:{is:"þrír kílómetrar", en:"three kilometers"}},
-      {is:"fjórir", en:"four", pron:"FYOH-rir", ex:{is:"fjórir dagar", en:"four days"}},
-      {is:"fimm", en:"five", pron:"fim", ex:{is:"fimm mínútur", en:"five minutes"}},
-      {is:"sex", en:"six", pron:"sex", ex:{is:"klukkan sex", en:"six o'clock"}},
-      {is:"sjö", en:"seven", pron:"syur", ex:{is:"sjö hundruð krónur", en:"seven hundred krónur"}},
-      {is:"átta", en:"eight", pron:"OW-tah", ex:{is:"átta manns", en:"eight people"}},
-      {is:"níu", en:"nine", pron:"NEE-u", ex:{is:"níu í kvöld", en:"nine tonight"}},
-      {is:"tíu", en:"ten", pron:"TEE-u", ex:{is:"tíu mínútur í viðbót", en:"ten more minutes"}},
-      {is:"núna", en:"now", pron:"NOO-na"}
-    ]
-  },
-  {
-    id:"road", name:"On the Road", kind:"cards",
-    desc:"The words signs are built from — so you can read signs you've never seen before, not just the ones in this deck.",
-    items:[
-      {is:"vegur", en:"road", pron:"VEH-gur", note:"seen as \"vegur lokaður\" — road closed"},
-      {is:"brú", en:"bridge", pron:"broo", note:"seen as \"einbreið brú\" — one-lane bridge, common on the south coast"},
-      {is:"malbik", en:"pavement / asphalt", pron:"MAL-bik", note:"seen as \"malbik endar\" — pavement ends, gravel ahead"},
-      {is:"endar", en:"ends", pron:"EN-dar"},
-      {is:"lokaður", en:"closed", pron:"LOH-ka-dhur"},
-      {is:"hægri", en:"right", pron:"HYE-gri"},
-      {is:"vinstri", en:"left", pron:"VIN-stri"},
-      {is:"beint", en:"straight", pron:"baynt", note:"seen as \"beint áfram\" — straight ahead"},
-      {is:"áfram", en:"ahead / onward", pron:"OW-fram"},
-      {is:"bensínstöð", en:"gas station", pron:"ben-SEEN-sturdh"},
-      {is:"aðgát", en:"caution", pron:"ADH-gowt"},
-      {is:"hálka", en:"slippery / ice", pron:"HOWL-ka"},
-      {is:"þjóðvegur", en:"highway / route", pron:"THYOHDH-veh-gur", note:"seen as \"Þjóðvegur 1\" — Route 1, the Ring Road"}
-    ]
-  },
-  {
-    id:"nature", name:"Nature & Your Route", kind:"cards",
-    desc:"The words behind the place names you'll actually drive to.",
-    items:[
-      {is:"foss", en:"waterfall", pron:"foss", note:"as in Skógafoss, Seljalandsfoss", ex:{is:"fallegur foss", en:"a beautiful waterfall"}},
-      {is:"jökull", en:"glacier", pron:"YUR-kutl", note:"as in Vatnajökull", ex:{is:"stór jökull", en:"a big glacier"}},
-      {is:"fjall", en:"mountain", pron:"fyatl", ex:{is:"hátt fjall", en:"a tall mountain"}},
-      {is:"fjörður", en:"fjord", pron:"FYUR-dhur", ex:{is:"djúpur fjörður", en:"a deep fjord"}},
-      {is:"sandur", en:"black sand plain", pron:"SAN-dur", note:"as in Breiðamerkursandur", ex:{is:"svartur sandur", en:"black sand"}},
-      {is:"hver", en:"hot spring", pron:"kver", ex:{is:"heitur hver", en:"a hot spring (lit. \"hot hot-spring\")"}},
-      {is:"eldfjall", en:"volcano", pron:"ELD-fyatl", ex:{is:"virkt eldfjall", en:"an active volcano"}},
-      {is:"Skógafoss", en:"forest waterfall — a south coast stop", pron:"SKOH-ga-foss"},
-      {is:"Reynisfjara", en:"the black sand beach near Vík", pron:"RAY-nis-fyah-ra", note:"respect the signs here — sneaker waves are real"},
-      {is:"Mýrdal", en:"the valley behind Vík's full name", pron:"MEER-dal", note:"the village's full name is Vík í Mýrdal"},
-      {is:"Jökulsárlón", en:"the glacier lagoon", pron:"YUR-kuls-owr-lohn"}
-    ]
-  },
-  {
-    id:"hofn", name:"South Coast → Höfn", kind:"cards",
-    desc:"The stretch past Vík — glacier lagoon, national park, and fuel planning.",
-    items:[
-      {is:"Skaftafell", en:"national park / glacier-hiking hub", pron:"SKAHF-ta-fetl"},
-      {is:"Fellsfjara", en:"Diamond Beach — ice on black sand", pron:"FETLS-fyah-ra", note:"across the road from Jökulsárlón"},
-      {is:"selir", en:"seals", pron:"SEH-lir", note:"often seen near the lagoon", ex:{is:"selir á sandinum", en:"seals on the sand"}},
-      {is:"ísjaki", en:"iceberg", pron:"EES-yah-ki", ex:{is:"stór ísjaki", en:"a big iceberg"}},
-      {is:"humar", en:"langoustine", pron:"HU-mar", note:"Höfn's specialty — the town is nicknamed \"Humarhöfn\"", ex:{is:"ferskur humar", en:"fresh langoustine"}},
-      {is:"Höfn", en:"the town — literally \"harbor\"", pron:"HUPN", note:"stress the front, keep it short"},
-      {is:"Bensín", en:"Petrol", pron:"ben-SEEN", ex:{is:"Er bensín hér?", en:"Is there petrol here?"}},
-      {is:"Tjaldsvæði", en:"Campsite", pron:"TYALDS-vigh-dhi", ex:{is:"Tjaldsvæði er hér nálægt.", en:"There's a campsite nearby."}},
-      {is:"Færð", en:"Travel/road conditions", pron:"fyrdh", note:"as in \"Færð og veður\" — the heading on Iceland's official road conditions site"},
-      {is:"Veður", en:"Weather", pron:"VEH-dhur", note:"worth reading before this route in bad conditions"},
-      {is:"Bílastæði", en:"Parking", pron:"BEE-la-sty-dhi", ex:{is:"Bílastæðið er fullt.", en:"The parking lot is full."}}
-    ]
-  },
-  {
-    id:"food", name:"Food & Dining", kind:"cards",
-    desc:"Words you'll actually see printed on a menu.",
-    items:[
-      {is:"Matseðill", en:"Menu", pron:"MAHT-seh-dhitl"},
-      {is:"Forréttur", en:"Starter / appetizer", pron:"FOR-ryeh-tur"},
-      {is:"Aðalréttur", en:"Main course", pron:"ADH-al-ryeh-tur"},
-      {is:"Eftirréttur", en:"Dessert", pron:"EF-tir-ryeh-tur"},
-      {is:"Fiskur", en:"Fish", pron:"FIS-kur"},
-      {is:"Lambakjöt", en:"Lamb", pron:"LAM-ba-kyurt"},
-      {is:"Kjöt", en:"Meat", pron:"kyurt"},
-      {is:"Súpa", en:"Soup", pron:"SOO-pa"},
-      {is:"Brauð", en:"Bread", pron:"broydh"},
-      {is:"Skyr", en:"Iceland's signature dairy product — like a thick yogurt", pron:"skir"},
-      {is:"Grænmeti", en:"Vegetables", pron:"GRINE-meh-ti"},
-      {is:"Vatn", en:"Water", pron:"vahtn"}
-    ]
-  },
-  {
-    id:"emergency", name:"Emergency & Health", kind:"cards",
-    desc:"Words on signs and buildings — hopefully unused, but worth recognizing.",
-    items:[
-      {is:"Hjálp!", en:"Help!", pron:"hyowlp"},
-      {is:"Neyðarlínan", en:"The emergency line", pron:"NAY-dhar-lee-nan", note:"dial 112 — one number for police, fire, ambulance, and search & rescue"},
-      {is:"Sjúkrabíll", en:"Ambulance", pron:"SYOOK-ra-beetl"},
-      {is:"Lögregla", en:"Police", pron:"LUR-greg-la"},
-      {is:"Sjúkrahús", en:"Hospital", pron:"SYOOK-ra-hoos"},
-      {is:"Neyðarútgangur", en:"Emergency exit", pron:"NAY-dhar-oot-gan-gur"}
-    ]
-  }
+// Trip date: adjust here if plans change.
+const TRIP_DATE = new Date("2026-09-19T00:00:00");
+
+const CARDS = [
+/* ---------------- ROAD ---------------- */
+{id:"r01",cat:"road",is:"Bensínstöð",en:"Gas station",diff:"regular"},
+{id:"r02",cat:"road",is:"Hraðahindrun",en:"Speed bump",diff:"regular"},
+{id:"r03",cat:"road",is:"Malbik endar",en:"Pavement ends (gravel ahead)",diff:"regular"},
+{id:"r04",cat:"road",is:"Einbreið brú",en:"One-lane bridge",diff:"regular"},
+{id:"r05",cat:"road",is:"Aðalbraut",en:"Main road / you have right-of-way",diff:"regular"},
+{id:"r06",cat:"road",is:"Biðskylda",en:"Yield",diff:"opaque",mn:"Sounds like 'bide' — bide your time, yield."},
+{id:"r07",cat:"road",is:"Stöðvunarskylda",en:"Stop required",diff:"regular"},
+{id:"r08",cat:"road",is:"Hringtorg",en:"Roundabout",diff:"regular"},
+{id:"r09",cat:"road",is:"Vegavinna",en:"Road work",diff:"regular"},
+{id:"r10",cat:"road",is:"Grjóthrun",en:"Rockfall",diff:"opaque",mn:"'Grjót' = rock — picture rocks tumbling."},
+{id:"r11",cat:"road",is:"Snjóflóðahætta",en:"Avalanche danger",diff:"opaque",mn:"Contains 'hætta' (danger) — snow + flood + danger."},
+{id:"r12",cat:"road",is:"Hálka",en:"Slippery / icy road",diff:"opaque",mn:"Picture your car going 'ha-ha-halka' sideways on ice."},
+{id:"r13",cat:"road",is:"Þoka",en:"Fog",diff:"opaque",mn:"'Choke' — fog chokes your visibility."},
+{id:"r14",cat:"road",is:"Vindhviður",en:"Wind gusts",diff:"regular"},
+{id:"r15",cat:"road",is:"Lokað",en:"Closed",diff:"regular"},
+{id:"r16",cat:"road",is:"Opið",en:"Open",diff:"regular"},
+{id:"r17",cat:"road",is:"Bílastæði",en:"Parking",diff:"regular"},
+{id:"r18",cat:"road",is:"Umferðarljós",en:"Traffic lights",diff:"regular"},
+{id:"r19",cat:"road",is:"Gönguleið",en:"Walking / hiking path",diff:"regular"},
+{id:"r20",cat:"road",is:"Óbrúuð á",en:"Unbridged river (ford crossing)",diff:"regular"},
+{id:"r21",cat:"road",is:"Fjallvegur",en:"Mountain road",diff:"regular"},
+{id:"r22",cat:"road",is:"Malarvegur",en:"Gravel road",diff:"regular"},
+{id:"r23",cat:"road",is:"Hámarkshraði",en:"Speed limit",diff:"regular"},
+{id:"r24",cat:"road",is:"Sjúkrahús",en:"Hospital",diff:"regular"},
+{id:"r25",cat:"road",is:"Lögregla",en:"Police",diff:"regular"},
+{id:"r26",cat:"road",is:"Bensín",en:"Petrol / gas",diff:"cognate"},
+{id:"r27",cat:"road",is:"Díselolía",en:"Diesel",diff:"cognate"},
+{id:"r28",cat:"road",is:"Hleðslustöð",en:"EV charging station",diff:"regular"},
+{id:"r29",cat:"road",is:"Áningarstaður",en:"Rest stop",diff:"regular"},
+{id:"r30",cat:"road",is:"Útsýnisstaður",en:"Viewpoint",diff:"regular"},
+
+/* ---------------- RESTAURANT ---------------- */
+{id:"f01",cat:"restaurant",is:"Matseðill",en:"Menu",diff:"regular"},
+{id:"f02",cat:"restaurant",is:"Forréttur",en:"Appetizer",diff:"regular"},
+{id:"f03",cat:"restaurant",is:"Aðalréttur",en:"Main course",diff:"regular"},
+{id:"f04",cat:"restaurant",is:"Eftirréttur",en:"Dessert",diff:"regular"},
+{id:"f05",cat:"restaurant",is:"Drykkir",en:"Drinks",diff:"regular"},
+{id:"f06",cat:"restaurant",is:"Vatn",en:"Water",diff:"regular"},
+{id:"f07",cat:"restaurant",is:"Bjór",en:"Beer",diff:"regular"},
+{id:"f08",cat:"restaurant",is:"Vín",en:"Wine",diff:"cognate"},
+{id:"f09",cat:"restaurant",is:"Kaffi",en:"Coffee",diff:"cognate"},
+{id:"f10",cat:"restaurant",is:"Te",en:"Tea",diff:"cognate"},
+{id:"f11",cat:"restaurant",is:"Súpa",en:"Soup",diff:"cognate"},
+{id:"f12",cat:"restaurant",is:"Salat",en:"Salad",diff:"cognate"},
+{id:"f13",cat:"restaurant",is:"Brauð",en:"Bread",diff:"regular"},
+{id:"f14",cat:"restaurant",is:"Smjör",en:"Butter",diff:"regular"},
+{id:"f15",cat:"restaurant",is:"Ostur",en:"Cheese",diff:"regular"},
+{id:"f16",cat:"restaurant",is:"Fiskur",en:"Fish",diff:"regular"},
+{id:"f17",cat:"restaurant",is:"Lax",en:"Salmon",diff:"regular"},
+{id:"f18",cat:"restaurant",is:"Þorskur",en:"Cod",diff:"regular"},
+{id:"f19",cat:"restaurant",is:"Lambakjöt",en:"Lamb",diff:"regular"},
+{id:"f20",cat:"restaurant",is:"Nautakjöt",en:"Beef",diff:"regular"},
+{id:"f21",cat:"restaurant",is:"Kjúklingur",en:"Chicken",diff:"regular"},
+{id:"f22",cat:"restaurant",is:"Grænmetisréttur",en:"Vegetarian dish",diff:"regular"},
+{id:"f23",cat:"restaurant",is:"Glútenlaust",en:"Gluten-free",diff:"regular"},
+{id:"f24",cat:"restaurant",is:"Ofnæmi",en:"Allergy",diff:"opaque",mn:"Picture a nose ('ofnæmi') offended by pollen."},
+{id:"f25",cat:"restaurant",is:"Skyr",en:"Skyr (Icelandic yogurt-like dairy)",diff:"regular"},
+{id:"f26",cat:"restaurant",is:"Reikningur",en:"The bill / check",diff:"regular"},
+{id:"f27",cat:"restaurant",is:"Þjónn",en:"Waiter",diff:"regular"},
+{id:"f28",cat:"restaurant",is:"Pöntun",en:"Order",diff:"regular"},
+{id:"f29",cat:"restaurant",is:"Súkkulaði",en:"Chocolate",diff:"cognate"},
+
+/* ---------------- GROCERY ---------------- */
+{id:"g01",cat:"grocery",is:"Mjólk",en:"Milk",diff:"regular"},
+{id:"g02",cat:"grocery",is:"Rjómi",en:"Cream",diff:"regular"},
+{id:"g03",cat:"grocery",is:"Egg",en:"Eggs",diff:"cognate"},
+{id:"g04",cat:"grocery",is:"Hveiti",en:"Flour",diff:"regular"},
+{id:"g05",cat:"grocery",is:"Sykur",en:"Sugar",diff:"regular"},
+{id:"g06",cat:"grocery",is:"Hrísgrjón",en:"Rice",diff:"regular"},
+{id:"g07",cat:"grocery",is:"Pasta",en:"Pasta",diff:"cognate"},
+{id:"g08",cat:"grocery",is:"Ávextir",en:"Fruit",diff:"regular"},
+{id:"g09",cat:"grocery",is:"Grænmeti",en:"Vegetables",diff:"regular"},
+{id:"g10",cat:"grocery",is:"Banani",en:"Banana",diff:"cognate"},
+{id:"g11",cat:"grocery",is:"Epli",en:"Apple",diff:"regular"},
+{id:"g12",cat:"grocery",is:"Appelsína",en:"Orange",diff:"cognate"},
+{id:"g13",cat:"grocery",is:"Tómatur",en:"Tomato",diff:"cognate"},
+{id:"g14",cat:"grocery",is:"Kartafla",en:"Potato",diff:"regular"},
+{id:"g15",cat:"grocery",is:"Laukur",en:"Onion",diff:"regular"},
+{id:"g16",cat:"grocery",is:"Kex",en:"Cookies / crackers",diff:"regular"},
+{id:"g17",cat:"grocery",is:"Jógúrt",en:"Yogurt",diff:"cognate"},
+{id:"g18",cat:"grocery",is:"Smjörlíki",en:"Margarine",diff:"regular"},
+{id:"g19",cat:"grocery",is:"Olía",en:"Oil",diff:"cognate"},
+{id:"g20",cat:"grocery",is:"Salt",en:"Salt",diff:"cognate"},
+{id:"g21",cat:"grocery",is:"Pipar",en:"Pepper",diff:"cognate"},
+{id:"g22",cat:"grocery",is:"Sósa",en:"Sauce",diff:"cognate"},
+{id:"g23",cat:"grocery",is:"Frosið",en:"Frozen",diff:"regular"},
+{id:"g24",cat:"grocery",is:"Ferskt",en:"Fresh",diff:"regular"},
+{id:"g25",cat:"grocery",is:"Lífrænt",en:"Organic",diff:"regular"},
+{id:"g26",cat:"grocery",is:"Afsláttur",en:"Discount",diff:"regular"},
+{id:"g27",cat:"grocery",is:"Afgreiðsla",en:"Checkout / service counter",diff:"opaque",mn:"Picture handing your basket 'off' at the 'greiðsla' (payment) counter."},
+{id:"g28",cat:"grocery",is:"Poki",en:"Bag",diff:"regular"},
+{id:"g29",cat:"grocery",is:"Verð",en:"Price",diff:"regular"},
+{id:"g30",cat:"grocery",is:"Opnunartími",en:"Opening hours",diff:"regular"},
+
+/* ---------------- DANGER / SAFETY (opaque, mnemonic-heavy) ---------------- */
+{id:"d01",cat:"danger",is:"Hætta",en:"Danger",diff:"opaque",mn:"Sounds like 'hatter' — the Mad Hatter is dangerous."},
+{id:"d02",cat:"danger",is:"Varúð",en:"Caution / warning",diff:"opaque",mn:"'Var' = wary — stay wary, use caution."},
+{id:"d03",cat:"danger",is:"Lífshætta",en:"Life-threatening danger",diff:"opaque",mn:"'Líf' = life + hætta (danger) — life in danger."},
+{id:"d04",cat:"danger",is:"Bannað",en:"Forbidden",diff:"opaque",mn:"Sounds like 'banned' — it basically is."},
+{id:"d05",cat:"danger",is:"Neyðarútgangur",en:"Emergency exit",diff:"opaque",mn:"'Neyð' = need/distress — the exit you NEED in distress."},
+{id:"d06",cat:"danger",is:"Slys",en:"Accident",diff:"opaque",mn:"Short and sharp — like the sound of a crash: 'slys!'"},
+{id:"d07",cat:"danger",is:"Hjálp",en:"Help",diff:"opaque",mn:"Sounds close to 'help' already."},
+{id:"d08",cat:"danger",is:"Sjúkrabíll",en:"Ambulance",diff:"regular"},
+{id:"d09",cat:"danger",is:"Eldur",en:"Fire",diff:"opaque",mn:"Picture an elder tending a fire."},
+{id:"d10",cat:"danger",is:"Reykur",en:"Smoke",diff:"opaque",mn:"Sounds like 'reek' — smoke reeks."},
+{id:"d11",cat:"danger",is:"Straumur",en:"Current (ocean/river)",diff:"opaque",mn:"'Stream' — a straumur is a strong stream pulling you out."},
+{id:"d12",cat:"danger",is:"Flóð",en:"Flood / high tide",diff:"opaque",mn:"Sounds like 'flood' — nearly identical."},
+{id:"d13",cat:"danger",is:"Klettabrún",en:"Cliff edge",diff:"opaque",mn:"'Klettur' = cliff — picture crumbling rock at the brún (edge)."},
+{id:"d14",cat:"danger",is:"Öldur",en:"Waves (sneaker waves)",diff:"opaque",mn:"Picture 'older' waves — the big rogue ones that sneak up."},
+
+/* ---------------- GREETINGS / TRANSACTIONAL ---------------- */
+{id:"h01",cat:"greetings",is:"Halló",en:"Hello",diff:"cognate"},
+{id:"h02",cat:"greetings",is:"Takk",en:"Thanks",diff:"regular"},
+{id:"h03",cat:"greetings",is:"Já",en:"Yes",diff:"regular"},
+{id:"h04",cat:"greetings",is:"Nei",en:"No",diff:"cognate"},
+{id:"h05",cat:"greetings",is:"Fyrirgefðu",en:"Excuse me / sorry",diff:"regular"},
+{id:"h06",cat:"greetings",is:"Gjörðu svo vel",en:"Here you go / please",diff:"regular"},
+{id:"h07",cat:"greetings",is:"Hvað kostar þetta?",en:"How much is this?",diff:"regular"},
+{id:"h08",cat:"greetings",is:"Hvar er klósettið?",en:"Where is the bathroom?",diff:"regular"},
+{id:"h09",cat:"greetings",is:"Skál",en:"Cheers",diff:"regular"},
+{id:"h10",cat:"greetings",is:"Bless",en:"Goodbye",diff:"cognate"},
+{id:"h11",cat:"greetings",is:"Já takk",en:"Yes please",diff:"regular"},
+{id:"h12",cat:"greetings",is:"Nei takk",en:"No thanks",diff:"regular"},
+{id:"h13",cat:"greetings",is:"Talar þú ensku?",en:"Do you speak English?",diff:"regular"},
 ];
 
-/* ============================= STATE ============================= */
-const TRIP_DATE = new Date("2026-09-19T00:00:00");
-let progress = {}; // { cardKey: {streak, due (ISO), reps} }
-let currentLesson = null;
-let queue = [];
-let qIndex = 0;
+const CATEGORY_LABELS = {
+  road: "Road", restaurant: "Restaurant", grocery: "Grocery",
+  danger: "Danger / safety", greetings: "Greetings"
+};
+
+/* =========================================================
+   STORAGE
+   NOTE: uses localStorage so progress survives closing the
+   browser tab — open this file directly (double-click, or
+   your own simple local server) for that to persist. If it's
+   ever previewed inside a sandboxed embed rather than opened
+   as a real file, storage may not be available; the app still
+   works, it just won't remember between sessions in that case.
+   ========================================================= */
+const STORE_KEY = "leidin_state_v1";
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) { /* storage unavailable — fall through */ }
+  return { cards: {}, settings: { activeCats: Object.keys(CATEGORY_LABELS), dailyNewLimit: 12, onboarded: false } };
+}
+function saveState() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+}
+
+let state = loadState();
+CARDS.forEach(c => {
+  if (!state.cards[c.id]) {
+    state.cards[c.id] = {
+      p: PRIOR_P(c.diff),
+      history: [],
+      nextDue: null // null = never studied, eligible as "new"
+    };
+  }
+});
+
+function PRIOR_P(diff) {
+  if (diff === "cognate") return 0.8;
+  if (diff === "opaque") return 0.3;
+  return 0.5;
+}
+
+/* =========================================================
+   SCHEDULING
+   ========================================================= */
+function daysUntilTrip() {
+  const now = new Date();
+  return Math.ceil((TRIP_DATE - now) / (1000 * 60 * 60 * 24));
+}
+
+function applyGrade(cardId, grade) {
+  const c = state.cards[cardId];
+  const def = CARDS.find(x => x.id === cardId);
+  if (grade === "didnt") c.p = c.p * 0.5;
+  if (grade === "unsure") c.p = c.p + (1 - c.p) * 0.15;
+  if (grade === "ez") c.p = c.p + (1 - c.p) * 0.4;
+  c.p = Math.max(0.05, Math.min(0.97, c.p));
+
+  const gapDays = intervalFromP(c.p);
+  const runwayLeft = daysUntilTrip();
+  const now = new Date();
+  let due;
+  if (runwayLeft < 7) {
+    // runway override: always eligible again next session
+    due = new Date(now.getTime() + 8 * 60 * 60 * 1000); // ~8hrs, i.e. "next session"
+  } else {
+    due = new Date(now.getTime() + gapDays * 24 * 60 * 60 * 1000);
+  }
+  c.history.push({ grade, at: now.toISOString() });
+  c.nextDue = due.toISOString();
+  saveState();
+}
+
+function intervalFromP(p) {
+  if (p < 0.5) return 1;
+  if (p < 0.7) return 2;
+  if (p < 0.85) return 4;
+  return 7;
+}
+
+function seedOnboard(cardId, grade) {
+  // synthetic single history entry through the same update rule
+  applyGrade(cardId, grade);
+}
+
+/* =========================================================
+   QUEUE BUILDING
+   ========================================================= */
+function buildQueue() {
+  const now = new Date();
+  const activeCats = state.settings.activeCats;
+  const pool = CARDS.filter(c => activeCats.includes(c.cat));
+
+  const due = pool.filter(c => {
+    const s = state.cards[c.id];
+    return s.nextDue && new Date(s.nextDue) <= now;
+  });
+
+  const brandNew = pool.filter(c => !state.cards[c.id].nextDue && state.cards[c.id].history.length === 0);
+  const newBatch = brandNew.slice(0, state.settings.dailyNewLimit);
+
+  const queue = due.concat(newBatch);
+  // interleave: shuffle
+  for (let i = queue.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [queue[i], queue[j]] = [queue[j], queue[i]];
+  }
+  return queue;
+}
+
+function dueCountToday() {
+  return buildQueue().length;
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+const app = document.getElementById("app");
+let currentQueue = [];
+let currentIndex = 0;
 let revealed = false;
-let icelandicVoice = null;
+let promptIsIcelandic = true;
+let view = "review"; // review | settings | onboard
 
-// Recalibrated for a 3-week trip window, not generic long-term SRS defaults —
-// the old tail (16, 35 days) meant "mastered" words graduated past their last
-// possible review before departure. Capped at 14 so even a fully-graduated
-// word gets at least one more touchpoint before you leave.
-const STAGE_INTERVALS_DAYS = [0, 1, 3, 6, 10, 14]; // by streak
-
-function slugify(text){
-  return text
-    .toLowerCase()
-    .replace(/[?!.,…"']/g, '')
-    .trim()
-    .replace(/\s+/g, '-');
+function render() {
+  if (view === "settings") return renderSettings();
+  if (view === "onboard") return renderOnboard();
+  return renderReview();
 }
 
-// Keyed by the phrase text itself (not its position in the array) so that
-// editing, reordering, or trimming lesson content never misapplies one
-// word's review history onto a different word that happens to share an index.
-function cardKey(lessonId, isText){ return lessonId + ":" + slugify(isText); }
-
-function todayISO(){ return new Date().toISOString(); }
-
-function isDue(entry){
-  if(!entry) return true;
-  return new Date(entry.due) <= new Date();
-}
-
-/* ============================= STORAGE ============================= */
-// Two possible backends: Claude's artifact bridge (window.storage) when running
-// inside claude.ai, or plain localStorage when running standalone (e.g. GitHub
-// Pages) where window.storage doesn't exist at all. Detected once at startup.
-let backend = null; // 'claude' | 'local' | null
-
-function claudeStorageAvailable(){
-  return typeof window.storage !== 'undefined'
-    && window.storage
-    && typeof window.storage.get === 'function'
-    && typeof window.storage.set === 'function';
-}
-function localStorageAvailable(){
-  try{
-    const k = '__icelandic_probe__';
-    localStorage.setItem(k, '1');
-    localStorage.removeItem(k);
-    return true;
-  }catch(e){ return false; } // private/incognito mode can throw here
-}
-
-async function backendGet(key){
-  if(backend === 'claude'){
-    const res = await window.storage.get(key, false);
-    return res ? res.value : null;
+function renderReview() {
+  if (currentIndex >= currentQueue.length) {
+    currentQueue = buildQueue();
+    currentIndex = 0;
   }
-  if(backend === 'local'){
-    return localStorage.getItem(key);
-  }
-  return null;
-}
-async function backendSet(key, value){
-  if(backend === 'claude'){ await window.storage.set(key, value, false); return; }
-  if(backend === 'local'){ localStorage.setItem(key, value); return; }
-  throw new Error('no storage backend available');
-}
+  const total = currentQueue.length;
 
-// null = unknown/checking, true = confirmed working, false = confirmed NOT persisting on this device
-let storageWorking = null;
-
-// Prove persistence actually round-trips, rather than inferring it from error shapes.
-async function verifyStorage(){
-  if(claudeStorageAvailable()){
-    backend = 'claude';
-    try{
-      const probe = 'ok-' + Date.now();
-      await backendSet('icelandic-storage-check', probe);
-      const val = await backendGet('icelandic-storage-check');
-      if(val === probe) return true;
-    }catch(e){ console.warn('Claude storage round-trip failed:', e); }
-  }
-  if(localStorageAvailable()){
-    backend = 'local';
-    return true;
-  }
-  backend = null;
-  return false;
-}
-
-async function loadProgress(){
-  storageWorking = await verifyStorage();
-  if(!storageWorking){ progress = {}; return; }
-  try{
-    const val = await backendGet('icelandic-progress');
-    if(val){ progress = JSON.parse(val); }
-  }catch(e){
-    progress = {}; // no saved progress yet — normal on first run
-  }
-}
-
-// Serialized save queue: only one write in flight at a time, so rapid
-// card ratings can't fire overlapping writes against each other.
-let saveTimer = null;
-let saveInFlight = false;
-let pendingSnapshot = null;
-
-function saveProgress(){
-  pendingSnapshot = JSON.stringify(progress);
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(flushSave, 250);
-}
-
-async function flushSave(){
-  if(saveInFlight){ saveTimer = setTimeout(flushSave, 200); return; } // wait for current write, then retry
-  if(pendingSnapshot === null) return;
-  if(!backend){ storageWorking = false; refreshStorageBanner(); return; }
-
-  const snapshot = pendingSnapshot;
-  pendingSnapshot = null;
-  saveInFlight = true;
-  try{
-    await backendSet('icelandic-progress', snapshot);
-    storageWorking = true;
-  }catch(e){
-    storageWorking = false;
-    console.warn('Progress save failed — use the backup code on the home screen.', e);
-    // put it back so the next successful save (or manual export) still has the latest state
-    if(pendingSnapshot === null) pendingSnapshot = snapshot;
-  }finally{
-    saveInFlight = false;
-    refreshStorageBanner();
-    if(pendingSnapshot !== null){ saveTimer = setTimeout(flushSave, 400); }
-  }
-}
-
-function refreshStorageBanner(){
-  // Only re-render if the home screen is currently visible, so we don't interrupt a lesson.
-  const home = document.getElementById('home');
-  if(home && home.style.display !== 'none'){ renderHome(); }
-}
-
-/* ---- Manual backup fallback (used when on-device storage isn't persisting) ---- */
-function exportProgress(){
-  try{
-    const code = btoa(unescape(encodeURIComponent(JSON.stringify(progress))));
-    const el = document.getElementById('backup-code');
-    if(el){ el.value = code; el.removeAttribute('readonly'); el.focus(); el.select(); el.setAttribute('readonly','true'); }
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(code).catch(()=>{});
-    }
-    const status = document.getElementById('backup-status');
-    if(status) status.textContent = 'Copied — paste it somewhere safe (Notes app works well).';
-  }catch(e){
-    const status = document.getElementById('backup-status');
-    if(status) status.textContent = 'Could not generate a code — try again.';
-  }
-}
-
-function importProgress(){
-  const el = document.getElementById('restore-input');
-  const status = document.getElementById('backup-status');
-  if(!el || !el.value.trim()){ if(status) status.textContent = 'Paste your backup code first.'; return; }
-  try{
-    const decoded = JSON.parse(decodeURIComponent(escape(atob(el.value.trim()))));
-    progress = Object.assign({}, progress, decoded);
-    saveProgress();
-    if(status) status.textContent = 'Restored. Your route below is up to date.';
-    renderHome();
-  }catch(e){
-    if(status) status.textContent = "That code didn't look right — check you copied the whole thing.";
-  }
-}
-
-/* ============================= VOICE ============================= */
-function initVoice(){
-  if(!('speechSynthesis' in window)) return;
-  const pick = ()=>{
-    const voices = speechSynthesis.getVoices();
-    icelandicVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('is')) || null;
-  };
-  pick();
-  speechSynthesis.onvoiceschanged = pick;
-}
-function speak(text){
-  if(!icelandicVoice) return;
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.voice = icelandicVoice;
-    u.lang = icelandicVoice.lang;
-    u.rate = 0.85;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-
-function forvoUrl(text){
-  // Forvo hosts real native-speaker recordings, linked here — not embedded/scraped.
-  // Coverage is best for single common words, spottier for constructed phrases and place names.
-  const slug = text
-    .toLowerCase()
-    .replace(/[?!.,]/g, '')
-    .trim()
-    .replace(/\s+/g, '_');
-  return 'https://forvo.com/word/' + encodeURIComponent(slug) + '/';
-}
-
-/* ============================= HOME RENDER ============================= */
-function daysUntilTrip(){
-  const ms = TRIP_DATE - new Date();
-  return Math.max(0, Math.ceil(ms / 86400000));
-}
-
-function lessonStats(lesson){
-  const items = lesson.items;
-  let mastered = 0, started = 0, due = 0;
-  items.forEach(item=>{
-    const e = progress[cardKey(lesson.id, item.is)];
-    if(!e){ return; }
-    started++;
-    if(e.streak >= 4) mastered++;
-    if(isDue(e)) due++;
-  });
-  return {total: items.length, mastered, started, due};
-}
-
-// Shared helper: walk every card lesson and collect {lid, idx} entries matching a filter.
-function collectEntries(filterFn){
-  const out = [];
-  LESSONS.forEach(l=>{
-    if(l.kind !== 'cards') return;
-    l.items.forEach((item, idx)=>{
-      const e = progress[cardKey(l.id, item.is)];
-      if(filterFn(e, item, l)) out.push({lid: l.id, idx});
-    });
-  });
-  return out;
-}
-
-// Review pool = cards you've rated at least once AND are due. Never-seen
-// cards are deliberately excluded — "new" and "review" are different tasks,
-// and mixing them was the bug the batching redesign is fixing.
-function reviewDuePool(){
-  return collectEntries(e => e && isDue(e));
-}
-
-// Every card you've rated at least once, regardless of due date — used only
-// for the pre-trip Final Review, not daily batching.
-function reviewLearnedPool(){
-  return collectEntries(e => !!e);
-}
-
-// Adaptive batch size: small pools stay as one batch; larger pools split into
-// a few even-ish groups targeting ~10 cards each, so no batch is a lonely
-// leftover of 1-2 cards and no batch is a 40-card slog.
-function computeBatchSize(n){
-  if(n <= 12) return n;
-  const batches = Math.ceil(n / 10);
-  return Math.ceil(n / batches);
-}
-
-function totalDueCount(){
-  return reviewDuePool().length;
-}
-
-function renderHome(){
-  const daysLeft = daysUntilTrip();
-  document.getElementById('countdown-text').textContent =
-    daysLeft + ' day' + (daysLeft===1?'':'s') + ' to Iceland';
-
-  const due = totalDueCount();
-  const batchSize = computeBatchSize(due);
-  const batchCount = due > 0 ? Math.ceil(due / batchSize) : 0;
-  const banner = document.getElementById('due-banner');
-  if(daysLeft <= 4){
-    banner.classList.remove('empty');
-    banner.innerHTML = `<div class="due-text">Trip's close — a full pass over every learned word beats waiting on individual due dates now.</div><button class="due-btn" onclick="startFinalReview()">Final Review</button>`;
-  } else if(due > 0){
-    banner.classList.remove('empty');
-    const batchLabel = batchCount > 1
-      ? `<b>${due}</b> words ready, split into ${batchCount} small batches of ~${batchSize}`
-      : `<b>${due}</b> word${due===1?'':'s'} ready`;
-    banner.innerHTML = `<div class="due-text">${batchLabel} — mixed across your route.</div><button class="due-btn" onclick="startReviewBatch()">Start batch</button>`;
+  let cardHtml;
+  if (total === 0) {
+    cardHtml = `<div class="empty-state">
+      <div class="big">Nothing due right now</div>
+      <div>Check back later, or open settings to add categories.</div>
+    </div>`;
   } else {
-    banner.classList.add('empty');
-    banner.innerHTML = `<div class="due-text">All caught up. Start a new stop below, or come back tomorrow.</div>`;
-  }
+    const c = currentQueue[currentIndex];
+    promptIsIcelandic = (currentIndex % 2 === 0);
+    const promptText = promptIsIcelandic ? c.is : c.en;
+    const answerText = promptIsIcelandic ? c.en : c.is;
 
-  const storageBanner = document.getElementById('storage-banner');
-  const footerNote = document.getElementById('footer-note');
-  if(storageWorking === false){
-    storageBanner.innerHTML = `
-      <div class="storage-banner">
-        <p class="storage-banner-title">Progress isn't saving automatically here</p>
-        <p class="storage-banner-text">On-device storage isn't available in this view, so reviews won't be remembered between visits unless you back them up manually below.</p>
-        <div class="backup-actions">
-          <div class="backup-row">
-            <button class="backup-btn primary" onclick="exportProgress()">Copy backup code</button>
-          </div>
-          <input class="backup-code" id="backup-code" readonly placeholder="Your code will appear here">
-          <div class="backup-row">
-            <input class="backup-input" id="restore-input" placeholder="Paste a backup code to restore">
-            <button class="backup-btn" onclick="importProgress()">Restore</button>
-          </div>
-          <p class="backup-status" id="backup-status"></p>
+    cardHtml = `
+      <div class="card" id="cardTap">
+        <div class="category-tag">${CATEGORY_LABELS[c.cat]}</div>
+        <div class="prompt">${promptText}</div>
+        ${revealed ? `<div class="answer">${answerText}</div>` : `<div class="tap-hint">tap to reveal</div>`}
+        ${revealed && c.mn ? `<div class="mnemonic">${c.mn}</div>` : ""}
+      </div>
+      ${revealed ? `
+        <div class="grades">
+          <button class="didnt" data-grade="didnt">Didn't know</button>
+          <button class="unsure" data-grade="unsure">Unsure</button>
+          <button class="ez" data-grade="ez">Ez pz</button>
         </div>
-      </div>`;
-    footerNote.innerHTML = 'Copy a backup code above before you close this tab.<br>Tap a stop to start or review its lesson.';
-  } else if(storageWorking === true){
-    storageBanner.innerHTML = '';
-    footerNote.innerHTML = 'Progress saves automatically on this device.<br>Tap a stop to start or review its lesson.';
-  } else {
-    storageBanner.innerHTML = '';
-    footerNote.innerHTML = 'Checking whether progress is saving on this device…<br>Tap a stop to start or review its lesson.';
+      ` : ""}
+    `;
   }
 
-  const stopsEl = document.getElementById('stops');
-  stopsEl.innerHTML = '';
-  LESSONS.forEach((lesson, i)=>{
-    const stats = lesson.kind === 'primer'
-      ? {total: lesson.items.length, mastered: 0, started: 0, due: 0}
-      : lessonStats(lesson);
+  app.innerHTML = `
+    <header>
+      <div class="wordmark">Leiðin</div>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div class="due-count">${dueCountToday()} due</div>
+        <button class="icon-btn" id="settingsBtn" aria-label="Settings">⚙</button>
+      </div>
+    </header>
+    <main>
+      <div class="review-shell">
+        ${cardHtml}
+      </div>
+    </main>
+  `;
 
-    const isPrimer = lesson.kind === 'primer';
-    let nodeClass = 'node';
-    let nodeInner = (i+1);
-    if(!isPrimer){
-      if(stats.mastered === stats.total && stats.total > 0){ nodeClass += ' mastered'; nodeInner = checkSVG(); }
-      else if(stats.due > 0 && stats.started > 0){ nodeClass += ' due'; }
-      else if(stats.started > 0){ nodeClass += ' started'; }
-    } else if (progress['_primer_seen_'+lesson.id]) {
-      nodeClass += ' mastered'; nodeInner = checkSVG();
-    }
+  document.getElementById("settingsBtn").onclick = () => { view = "settings"; render(); };
 
-    const pips = isPrimer ? '' : `<div class="progress-pips">${
-      lesson.items.map(item=>{
-        const e = progress[cardKey(lesson.id, item.is)];
-        const on = e && e.streak >= 2;
-        return `<div class="pip ${on?'on':''}"></div>`;
-      }).join('')
-    }</div>`;
+  const tap = document.getElementById("cardTap");
+  if (tap && !revealed) {
+    tap.onclick = () => { revealed = true; render(); };
+  }
+  document.querySelectorAll("[data-grade]").forEach(btn => {
+    btn.onclick = () => {
+      const c = currentQueue[currentIndex];
+      applyGrade(c.id, btn.dataset.grade);
+      revealed = false;
+      currentIndex++;
+      render();
+    };
+  });
+}
 
-    let metaText;
-    if(isPrimer){
-      metaText = lesson.items.length + ' sound rules';
-    } else if(stats.due > 0){
-      metaText = `<span class="due-tag">${stats.due} due</span> · ${stats.total} phrases`;
-    } else if(stats.mastered === stats.total){
-      metaText = `<span class="mastered-tag">mastered</span> · ${stats.total} phrases`;
-    } else if(stats.started > 0){
-      metaText = `${stats.started}/${stats.total} started`;
-    } else {
-      metaText = `${stats.total} phrases · not started`;
-    }
-
-    const div = document.createElement('div');
-    div.className = 'stop';
-    div.onclick = ()=> openLesson(lesson.id);
-    div.innerHTML = `
-      <div class="${nodeClass}">${nodeInner}</div>
-      <div class="stop-body">
-        <p class="stop-name">${lesson.name}</p>
-        <p class="stop-meta">${metaText}</p>
-        ${pips}
+function renderSettings() {
+  const catRows = Object.keys(CATEGORY_LABELS).map(cat => {
+    const on = state.settings.activeCats.includes(cat);
+    const count = CARDS.filter(c => c.cat === cat).length;
+    return `
+      <div class="cat-row">
+        <div>${CATEGORY_LABELS[cat]} <span class="count">(${count})</span></div>
+        <button class="toggle ${on ? "on" : ""}" data-cat="${cat}"></button>
       </div>
     `;
-    stopsEl.appendChild(div);
+  }).join("");
+
+  const runway = daysUntilTrip();
+
+  app.innerHTML = `
+    <header>
+      <button class="icon-btn back-row" id="backBtn">← back</button>
+    </header>
+    <main>
+      <div class="panel">
+        <h3>trip countdown</h3>
+        <div class="note">${runway} day${runway === 1 ? "" : "s"} until Sept 19. ${runway < 7 ? "Runway override is active — cards you review now stay in daily rotation until the trip." : ""}</div>
+      </div>
+      <div class="panel">
+        <h3>categories</h3>
+        ${catRows}
+      </div>
+      <div class="panel">
+        <h3>known words</h3>
+        <div class="note">Already know some of these? Import them so they start at the right level instead of showing up as brand new.</div>
+        <button class="text-btn" id="onboardBtn">Import known words →</button>
+      </div>
+      <div class="panel">
+        <h3>reset</h3>
+        <div class="note">Clears all progress and starts over.</div>
+        <button class="text-btn danger-text" id="resetBtn">Reset all progress</button>
+      </div>
+    </main>
+  `;
+
+  document.getElementById("backBtn").onclick = () => { view = "review"; render(); };
+  document.getElementById("onboardBtn").onclick = () => { view = "onboard"; render(); };
+  document.getElementById("resetBtn").onclick = () => {
+    if (confirm("Reset all progress? This can't be undone.")) {
+      state = { cards: {}, settings: { activeCats: Object.keys(CATEGORY_LABELS), dailyNewLimit: 12, onboarded: false } };
+      CARDS.forEach(c => {
+        state.cards[c.id] = { p: PRIOR_P(c.diff), history: [], nextDue: null };
+      });
+      saveState();
+      view = "review"; currentQueue = []; currentIndex = 0;
+      render();
+    }
+  };
+  document.querySelectorAll("[data-cat]").forEach(btn => {
+    btn.onclick = () => {
+      const cat = btn.dataset.cat;
+      const idx = state.settings.activeCats.indexOf(cat);
+      if (idx >= 0) state.settings.activeCats.splice(idx, 1);
+      else state.settings.activeCats.push(cat);
+      saveState();
+      renderSettings();
+    };
   });
 }
 
-function checkSVG(){
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="#0C1210" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`;
-}
-
-/* ============================= LESSON FLOW ============================= */
-function shuffle(arr){
-  // Fisher-Yates — every session gets a fresh order, so you're retrieving
-  // from the word itself, not from remembering "card 4 comes after card 3."
-  for(let i = arr.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-function reinsertMissed(entry){
-  // A missed card always landing at the very end is its own predictable
-  // pattern — you'd learn "the last card is always my mistake" instead of
-  // actually retrieving it. Drop it back in at a random spot among what's
-  // left, at least 2 cards ahead so it isn't a trivial immediate repeat.
-  const remaining = queue.length - (qIndex + 1);
-  if(remaining <= 1){ queue.push(entry); return; }
-  const minGap = Math.min(2, remaining);
-  const offset = minGap + Math.floor(Math.random() * (remaining - minGap + 1));
-  const insertAt = Math.min(queue.length, qIndex + 1 + offset);
-  queue.splice(insertAt, 0, entry);
-}
-
-let reviewMode = false; // true when running a mixed cross-lesson due-review session
-
-function openLesson(id){
-  const lesson = LESSONS.find(l=>l.id===id);
-  currentLesson = lesson;
-  reviewMode = false;
-  document.getElementById('home').style.display = 'none';
-  document.getElementById('lesson').classList.add('active');
-  document.getElementById('lesson-title').textContent = lesson.name;
-
-  if(lesson.kind === 'primer'){
-    renderPrimer(lesson);
-    return;
-  }
-
-  queue = shuffle(lesson.items.map((_, idx)=> ({lid: lesson.id, idx})));
-  qIndex = 0;
-  revealed = false;
-  renderCard();
-}
-
-function startReviewBatch(){
-  const pool = reviewDuePool();
-  if(pool.length === 0) return;
-
-  const batchSize = computeBatchSize(pool.length);
-  const batch = shuffle(pool).slice(0, batchSize);
-
-  currentLesson = null;
-  reviewMode = true;
-  document.getElementById('home').style.display = 'none';
-  document.getElementById('lesson').classList.add('active');
-  document.getElementById('lesson-title').textContent = 'Review Batch';
-
-  queue = batch;
-  qIndex = 0;
-  revealed = false;
-  renderCard();
-}
-
-// A consolidated pass across every word you've learned at least once,
-// regardless of individual due dates — the evidence for one comprehensive
-// review shortly before a target date is separate from (and additional to)
-// ongoing spaced review. Not batched, since it's a deliberate one-off, not
-// part of the daily bite-sized flow.
-function startFinalReview(){
-  const entries = reviewLearnedPool();
-  if(entries.length === 0) return;
-
-  currentLesson = null;
-  reviewMode = true;
-  document.getElementById('home').style.display = 'none';
-  document.getElementById('lesson').classList.add('active');
-  document.getElementById('lesson-title').textContent = 'Final Review';
-
-  queue = shuffle(entries);
-  qIndex = 0;
-  revealed = false;
-  renderCard();
-}
-
-function goHome(){
-  document.getElementById('lesson').classList.remove('active');
-  document.getElementById('home').style.display = 'block';
-  renderHome();
-}
-
-function renderPrimer(lesson){
-  progress['_primer_seen_'+lesson.id] = true;
-  saveProgress();
-  document.getElementById('lesson-count').textContent = lesson.items.length + ' rules';
-  const area = document.getElementById('card-area');
-  area.innerHTML = `<div class="primer-list">
-    <p style="color:var(--mist);font-size:13.5px;line-height:1.6;margin:0 0 16px;padding:0 2px;">${lesson.desc}</p>
-    ${lesson.items.map(it=>`
-      <div class="primer-item">
-        <span class="primer-letter">${it.letter}</span>
-        <p class="primer-rule">${it.rule}</p>
-        <div class="primer-example">
-          <span>${it.is}</span><span class="arrow">→</span><span>${it.pron}</span>
-        </div>
-        ${it.note ? `<p style="color:var(--mist-dim);font-size:12px;margin:6px 0 0;">${it.note}</p>` : ''}
-      </div>
-    `).join('')}
-    <div class="tap-forward" style="padding-top:6px;">
-      <button class="tap-btn" onclick="goHome()">Got it — back to route</button>
-    </div>
-  </div>`;
-}
-
-function renderCard(){
-  if(qIndex >= queue.length){
-    renderDone();
-    return;
-  }
-  const entry = queue[qIndex];
-  const lesson = LESSONS.find(l=>l.id===entry.lid);
-  const item = lesson.items[entry.idx];
-  revealed = false;
-  document.getElementById('lesson-count').textContent = (qIndex+1) + '/' + queue.length;
-
-  const area = document.getElementById('card-area');
-  area.innerHTML = `
-    <div class="card-stage">
-      <div class="card" id="flip-card" onclick="revealCard()">
-        <p class="card-is">${item.is}</p>
-        <div class="audio-row" onclick="event.stopPropagation()">
-          <button class="speak-btn ${icelandicVoice? '' : 'disabled'}" onclick="speak('${item.is.replace(/'/g,"\\'")}')" title="Play on-device voice">
-            <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7" stroke="#6FB8D6" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-          </button>
-          <a class="forvo-link" href="${forvoUrl(item.is)}" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#E8A33D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
-            Forvo
-          </a>
-        </div>
-        <p class="flip-hint">tap card to reveal</p>
-        <div class="reveal" id="reveal-block">
-          <p class="reveal-en">${item.en || ''}</p>
-          <p class="reveal-pron">${item.pron}</p>
-          ${item.note ? `<p class="reveal-note">${item.note}</p>` : ''}
-          ${item.ex ? `<div class="reveal-ex">
-            <p class="reveal-ex-label">In context</p>
-            <p class="reveal-ex-is">${item.ex.is}</p>
-            <p class="reveal-ex-en">${item.ex.en}</p>
-          </div>` : ''}
+function renderOnboard() {
+  const rows = CARDS.map(c => {
+    const s = state.cards[c.id];
+    const lastGrade = s.history.length ? s.history[s.history.length - 1].grade : null;
+    return `
+      <div class="import-row">
+        <div class="term">${c.is}<span class="en">${c.en}</span></div>
+        <div class="import-grades">
+          <button data-id="${c.id}" data-grade="didnt" class="${lastGrade === "didnt" ? "chosen didnt" : ""}">New</button>
+          <button data-id="${c.id}" data-grade="unsure" class="${lastGrade === "unsure" ? "chosen unsure" : ""}">Unsure</button>
+          <button data-id="${c.id}" data-grade="ez" class="${lastGrade === "ez" ? "chosen ez" : ""}">Ez pz</button>
         </div>
       </div>
-    </div>
-    <div class="rate-row hidden" id="rate-row">
-      <button class="rate-btn rate-again" onclick="rate(0)">Again<small>seconds</small></button>
-      <button class="rate-btn rate-hard" onclick="rate(1)">Hard<small>1 day</small></button>
-      <button class="rate-btn rate-good" onclick="rate(2)">Good<small>3 days</small></button>
-      <button class="rate-btn rate-easy" onclick="rate(3)">Easy<small>1 week+</small></button>
-    </div>
+    `;
+  }).join("");
+
+  app.innerHTML = `
+    <header>
+      <button class="icon-btn back-row" id="backBtn">← done</button>
+    </header>
+    <main>
+      <div class="panel">
+        <h3>import known words</h3>
+        <div class="note">Tap how well you already know each word. Skip any you're unsure about — they'll just show up as new.</div>
+      </div>
+      <div class="panel">
+        ${rows}
+      </div>
+    </main>
   `;
+  document.getElementById("backBtn").onclick = () => { view = "settings"; render(); };
+  document.querySelectorAll("[data-grade]").forEach(btn => {
+    btn.onclick = () => {
+      seedOnboard(btn.dataset.id, btn.dataset.grade);
+      renderOnboard();
+    };
+  });
 }
 
-function revealCard(){
-  if(revealed) return;
-  revealed = true;
-  document.getElementById('reveal-block').classList.add('show');
-  document.querySelector('.flip-hint').style.display = 'none';
-  document.getElementById('rate-row').classList.remove('hidden');
-}
-
-function rate(score){
-  const entry = queue[qIndex];
-  const lesson = LESSONS.find(l=>l.id===entry.lid);
-  const item = lesson.items[entry.idx];
-  const key = cardKey(lesson.id, item.is);
-  const progEntry = progress[key] || {streak: 0, reps: 0};
-  progEntry.reps = (progEntry.reps || 0) + 1;
-
-  if(score === 0){ // again — short same-session reshow, stays clock-relative
-    progEntry.streak = 0;
-    reinsertMissed(entry); // land somewhere random in what's left, not predictably at the end
-    const due = new Date(); due.setMinutes(due.getMinutes() + 1);
-    progEntry.due = due.toISOString();
-  } else {
-    if(score === 1) progEntry.streak = Math.max(0, (progEntry.streak||0)); // hard: hold
-    if(score === 2) progEntry.streak = (progEntry.streak||0) + 1; // good
-    if(score === 3) progEntry.streak = (progEntry.streak||0) + 2; // easy
-    progEntry.streak = Math.min(progEntry.streak, STAGE_INTERVALS_DAYS.length - 1);
-    const days = STAGE_INTERVALS_DAYS[progEntry.streak];
-    const scheduledDays = score === 1 ? 1 : Math.max(days, 1);
-    // Land at local midnight of the target calendar day, not the exact clock
-    // time of this review — so "1 day" means "available tomorrow morning,"
-    // not "available 24 hours from whatever time I happened to study."
-    const due = new Date();
-    due.setDate(due.getDate() + scheduledDays);
-    due.setHours(0, 0, 0, 0);
-    progEntry.due = due.toISOString();
-  }
-
-  progress[key] = progEntry;
-  saveProgress();
-  qIndex++;
-  renderCard();
-}
-
-function renderDone(){
-  const area = document.getElementById('card-area');
-  const remaining = reviewDuePool().length;
-
-  let label, detail, nextBtn = '';
-  if(!reviewMode){
-    label = currentLesson.name;
-    detail = 'Nice work. It\'ll resurface in review batches as it comes due.';
-  } else {
-    label = 'Batch complete';
-    if(remaining > 0){
-      detail = `${remaining} more word${remaining===1?'':'s'} still due today — another small batch whenever you're ready, no rush.`;
-      nextBtn = `<button class="tap-btn" style="margin-bottom:10px;" onclick="startReviewBatch()">Next batch</button>`;
-    } else {
-      detail = 'That was everything due right now. Nice clean sweep.';
-    }
-  }
-
-  area.innerHTML = `
-    <div class="done-wrap">
-      <p class="display">${reviewMode ? 'Batch complete.' : 'Stop complete.'}</p>
-      <p>${reviewMode ? detail : (label + ' — ' + detail)}</p>
-      <div class="tap-forward" style="margin-top:18px;">
-        ${nextBtn}
-        <button class="tap-btn" onclick="goHome()" style="${nextBtn ? 'background:var(--basalt-3);color:var(--glacier);' : ''}">Back to the route</button>
-      </div>
-    </div>
-  `;
-}
-
-/* ============================= INIT ============================= */
-(async function init(){
-  await loadProgress();
-  initVoice();
-  renderHome();
-})();
+render();
 </script>
 </body>
 </html>
