@@ -6,14 +6,14 @@
 <title>Leiðin</title>
 <style>
   :root {
-    --bg: #f5f6f4;
-    --ink: #1b2420;
-    --ink-soft: #5c6660;
-    --line: #d9dcd6;
-    --glacier: #2f6f6a;
-    --glacier-deep: #204c48;
-    --warn: #a8492f;
-    --card-bg: #ffffff;
+    --bg: #16191b;
+    --ink: #e8ebe6;
+    --ink-soft: #98a19a;
+    --line: #2c3230;
+    --glacier: #5fb3ac;
+    --glacier-deep: #8fd4ce;
+    --warn: #e0754f;
+    --card-bg: #1e2322;
   }
   * { box-sizing: border-box; }
   html, body {
@@ -127,7 +127,7 @@
   }
   .grades button:active { background: var(--bg); }
   .grades .didnt { color: var(--warn); }
-  .grades .unsure { color: #8a6d1f; }
+  .grades .unsure { color: #c9a227; }
   .grades .ez { color: var(--glacier-deep); }
 
   .empty-state {
@@ -191,7 +191,6 @@
     cursor: pointer;
     padding: 10px 0;
   }
-  .danger-text { color: var(--warn); }
   .back-row { margin-bottom: 18px; }
   .note {
     font-size: 12.5px;
@@ -219,7 +218,7 @@
     cursor: pointer;
   }
   .import-grades button.chosen.didnt { background: var(--warn); color: white; border-color: var(--warn); }
-  .import-grades button.chosen.unsure { background: #8a6d1f; color: white; border-color: #8a6d1f; }
+  .import-grades button.chosen.unsure { background: #c9a227; color: white; border-color: #c9a227; }
   .import-grades button.chosen.ez { background: var(--glacier-deep); color: white; border-color: var(--glacier-deep); }
 </style>
 </head>
@@ -452,6 +451,15 @@ function seedOnboard(cardId, grade) {
 /* =========================================================
    QUEUE BUILDING
    ========================================================= */
+function newCardsIntroducedToday() {
+  const todayStr = new Date().toDateString();
+  let count = 0;
+  Object.values(state.cards).forEach(c => {
+    if (c.history.length && new Date(c.history[0].at).toDateString() === todayStr) count++;
+  });
+  return count;
+}
+
 function buildQueue() {
   const now = new Date();
   const activeCats = state.settings.activeCats;
@@ -463,7 +471,8 @@ function buildQueue() {
   });
 
   const brandNew = pool.filter(c => !state.cards[c.id].nextDue && state.cards[c.id].history.length === 0);
-  const newBatch = brandNew.slice(0, state.settings.dailyNewLimit);
+  const remainingNewAllowed = Math.max(0, state.settings.dailyNewLimit - newCardsIntroducedToday());
+  const newBatch = brandNew.slice(0, remainingNewAllowed);
 
   const queue = due.concat(newBatch);
   // interleave: shuffle
@@ -550,9 +559,18 @@ function renderReview() {
   document.querySelectorAll("[data-grade]").forEach(btn => {
     btn.onclick = () => {
       const c = currentQueue[currentIndex];
-      applyGrade(c.id, btn.dataset.grade);
+      const grade = btn.dataset.grade;
+      applyGrade(c.id, grade);
       revealed = false;
       currentIndex++;
+      if (grade === "didnt") {
+        // Expanding retrieval (Landauer & Bjork 1978): a missed card
+        // resurfaces later in *this* session, interleaved with others,
+        // rather than waiting for the next-day fallback set above.
+        const offset = 4 + Math.floor(Math.random() * 4); // 4–7 cards ahead
+        const insertAt = Math.min(currentQueue.length, currentIndex + offset);
+        currentQueue.splice(insertAt, 0, c);
+      }
       render();
     };
   });
@@ -590,27 +608,11 @@ function renderSettings() {
         <div class="note">Already know some of these? Import them so they start at the right level instead of showing up as brand new.</div>
         <button class="text-btn" id="onboardBtn">Import known words →</button>
       </div>
-      <div class="panel">
-        <h3>reset</h3>
-        <div class="note">Clears all progress and starts over.</div>
-        <button class="text-btn danger-text" id="resetBtn">Reset all progress</button>
-      </div>
     </main>
   `;
 
   document.getElementById("backBtn").onclick = () => { view = "review"; render(); };
   document.getElementById("onboardBtn").onclick = () => { view = "onboard"; render(); };
-  document.getElementById("resetBtn").onclick = () => {
-    if (confirm("Reset all progress? This can't be undone.")) {
-      state = { cards: {}, settings: { activeCats: Object.keys(CATEGORY_LABELS), dailyNewLimit: 12, onboarded: false } };
-      CARDS.forEach(c => {
-        state.cards[c.id] = { p: PRIOR_P(c.diff), history: [], nextDue: null };
-      });
-      saveState();
-      view = "review"; currentQueue = []; currentIndex = 0;
-      render();
-    }
-  };
   document.querySelectorAll("[data-cat]").forEach(btn => {
     btn.onclick = () => {
       const cat = btn.dataset.cat;
@@ -631,7 +633,7 @@ function renderOnboard() {
       <div class="import-row">
         <div class="term">${c.is}<span class="en">${c.en}</span></div>
         <div class="import-grades">
-          <button data-id="${c.id}" data-grade="didnt" class="${lastGrade === "didnt" ? "chosen didnt" : ""}">New</button>
+          <button data-id="${c.id}" data-grade="didnt" class="${lastGrade === "didnt" ? "chosen didnt" : ""}">Didn't know</button>
           <button data-id="${c.id}" data-grade="unsure" class="${lastGrade === "unsure" ? "chosen unsure" : ""}">Unsure</button>
           <button data-id="${c.id}" data-grade="ez" class="${lastGrade === "ez" ? "chosen ez" : ""}">Ez pz</button>
         </div>
