@@ -192,6 +192,20 @@
     padding: 10px 0;
   }
   .back-row { margin-bottom: 18px; }
+  #exportBox {
+    width: 100%;
+    height: 120px;
+    background: var(--bg);
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 11px;
+    padding: 10px;
+    resize: vertical;
+    margin-bottom: 6px;
+    box-sizing: border-box;
+  }
   .note {
     font-size: 12.5px;
     color: var(--ink-soft);
@@ -235,99 +249,99 @@ const TRIP_DATE = new Date("2026-09-19T00:00:00");
 
 const CARDS = [
 /* ---------------- ROAD ---------------- */
-{id:"r01",cat:"road",is:"Bensínstöð",en:"Gas station",diff:"regular"},
-{id:"r02",cat:"road",is:"Hraðahindrun",en:"Speed bump",diff:"regular"},
-{id:"r03",cat:"road",is:"Malbik endar",en:"Pavement ends (gravel ahead)",diff:"regular"},
-{id:"r04",cat:"road",is:"Einbreið brú",en:"One-lane bridge",diff:"regular"},
-{id:"r05",cat:"road",is:"Aðalbraut",en:"Main road / you have right-of-way",diff:"regular"},
+{id:"r01",cat:"road",is:"Bensínstöð",en:"Gas station",diff:"regular",mn:"'Bensín' = benzine/gasoline — nearly a cognate once you hear it."},
+{id:"r02",cat:"road",is:"Hraðahindrun",en:"Speed bump",diff:"regular",mn:"'Hraða' = speed/haste — a hindrance to your haste."},
+{id:"r03",cat:"road",is:"Malbik endar",en:"Pavement ends (gravel ahead)",diff:"regular",mn:"'Malbik' sounds like 'mole-bik' — imagine the pavement mole-holed and ending."},
+{id:"r04",cat:"road",is:"Einbreið brú",en:"One-lane bridge",diff:"regular",mn:"'Einbreið' = one-wide — 'ein' (one) + 'breið' (wide/broad), only one lane wide."},
+{id:"r05",cat:"road",is:"Aðalbraut",en:"Main road / you have right-of-way",diff:"regular",mn:"'Aðal' = main/chief — the 'a-list' road, you go first."},
 {id:"r06",cat:"road",is:"Biðskylda",en:"Yield",diff:"opaque",mn:"Sounds like 'bide' — bide your time, yield."},
-{id:"r07",cat:"road",is:"Stöðvunarskylda",en:"Stop required",diff:"regular"},
-{id:"r08",cat:"road",is:"Hringtorg",en:"Roundabout",diff:"regular"},
-{id:"r09",cat:"road",is:"Vegavinna",en:"Road work",diff:"regular"},
+{id:"r07",cat:"road",is:"Stöðvunarskylda",en:"Stop required",diff:"regular",mn:"'Stöðva' = to stop — like a stadium full stop."},
+{id:"r08",cat:"road",is:"Hringtorg",en:"Roundabout",diff:"regular",mn:"'Hring' = ring/circle — a ring-shaped torg (square) you drive around."},
+{id:"r09",cat:"road",is:"Vegavinna",en:"Road work",diff:"regular",mn:"'Vega' = road/way + 'vinna' = work — road-work, literally."},
 {id:"r10",cat:"road",is:"Grjóthrun",en:"Rockfall",diff:"opaque",mn:"'Grjót' = rock — picture rocks tumbling."},
 {id:"r11",cat:"road",is:"Snjóflóðahætta",en:"Avalanche danger",diff:"opaque",mn:"Contains 'hætta' (danger) — snow + flood + danger."},
 {id:"r12",cat:"road",is:"Hálka",en:"Slippery / icy road",diff:"opaque",mn:"Picture your car going 'ha-ha-halka' sideways on ice."},
 {id:"r13",cat:"road",is:"Þoka",en:"Fog",diff:"opaque",mn:"'Choke' — fog chokes your visibility."},
-{id:"r14",cat:"road",is:"Vindhviður",en:"Wind gusts",diff:"regular"},
-{id:"r15",cat:"road",is:"Lokað",en:"Closed",diff:"regular"},
-{id:"r16",cat:"road",is:"Opið",en:"Open",diff:"regular"},
-{id:"r17",cat:"road",is:"Bílastæði",en:"Parking",diff:"regular"},
-{id:"r18",cat:"road",is:"Umferðarljós",en:"Traffic lights",diff:"regular"},
-{id:"r19",cat:"road",is:"Gönguleið",en:"Walking / hiking path",diff:"regular"},
-{id:"r20",cat:"road",is:"Óbrúuð á",en:"Unbridged river (ford crossing)",diff:"regular"},
-{id:"r21",cat:"road",is:"Fjallvegur",en:"Mountain road",diff:"regular"},
-{id:"r22",cat:"road",is:"Malarvegur",en:"Gravel road",diff:"regular"},
-{id:"r23",cat:"road",is:"Hámarkshraði",en:"Speed limit",diff:"regular"},
-{id:"r24",cat:"road",is:"Sjúkrahús",en:"Hospital",diff:"regular"},
-{id:"r25",cat:"road",is:"Lögregla",en:"Police",diff:"regular"},
+{id:"r14",cat:"road",is:"Vindhviður",en:"Wind gusts",diff:"regular",mn:"'Vindur' = wind — vind + gusts of wind hitting you sideways."},
+{id:"r15",cat:"road",is:"Lokað",en:"Closed",diff:"regular",mn:"Picture a locked gate — 'lokað' sounds like 'locked'."},
+{id:"r16",cat:"road",is:"Opið",en:"Open",diff:"regular",mn:"Sounds like 'open' with an Icelandic accent — near-cognate."},
+{id:"r17",cat:"road",is:"Bílastæði",en:"Parking",diff:"regular",mn:"'Bíll' = car — a car-stæði (stand/stall) to park in."},
+{id:"r18",cat:"road",is:"Umferðarljós",en:"Traffic lights",diff:"regular",mn:"'Umferð' = traffic — traffic + ljós (lights)."},
+{id:"r19",cat:"road",is:"Gönguleið",en:"Walking / hiking path",diff:"regular",mn:"'Ganga' = to walk — a walking-leið (path/way)."},
+{id:"r20",cat:"road",is:"Óbrúuð á",en:"Unbridged river (ford crossing)",diff:"regular",mn:"'Óbrúuð' = un-bridged — 'brú' is bridge, 'ó-' negates it: a river crossing with no bridge."},
+{id:"r21",cat:"road",is:"Fjallvegur",en:"Mountain road",diff:"regular",mn:"'Fjall' = mountain — a mountain-vegur (road)."},
+{id:"r22",cat:"road",is:"Malarvegur",en:"Gravel road",diff:"regular",mn:"'Möl' = gravel — picture gravel crunching, 'mal-ar-vegur'."},
+{id:"r23",cat:"road",is:"Hámarkshraði",en:"Speed limit",diff:"regular",mn:"'Hámark' = maximum — max speed, hámarkshraði."},
+{id:"r24",cat:"road",is:"Sjúkrahús",en:"Hospital",diff:"regular",mn:"'Sjúkur' = sick — a sick-house, hospital."},
+{id:"r25",cat:"road",is:"Lögregla",en:"Police",diff:"regular",mn:"Picture a 'log' (police log book) — lögregla, the law-rule keepers."},
 {id:"r26",cat:"road",is:"Bensín",en:"Petrol / gas",diff:"cognate"},
 {id:"r27",cat:"road",is:"Díselolía",en:"Diesel",diff:"cognate"},
-{id:"r28",cat:"road",is:"Hleðslustöð",en:"EV charging station",diff:"regular"},
-{id:"r29",cat:"road",is:"Áningarstaður",en:"Rest stop",diff:"regular"},
-{id:"r30",cat:"road",is:"Útsýnisstaður",en:"Viewpoint",diff:"regular"},
+{id:"r28",cat:"road",is:"Hleðslustöð",en:"EV charging station",diff:"regular",mn:"'Hleðsla' = charging/loading — imagine plugging in to load up energy."},
+{id:"r29",cat:"road",is:"Áningarstaður",en:"Rest stop",diff:"regular",mn:"'Áning' = a pause/rest on a journey — an 'awning' to rest under."},
+{id:"r30",cat:"road",is:"Útsýnisstaður",en:"Viewpoint",diff:"regular",mn:"'Útsýni' = view/outlook — 'out-see-knee' — a place to see out over the land."},
 
 /* ---------------- RESTAURANT ---------------- */
-{id:"f01",cat:"restaurant",is:"Matseðill",en:"Menu",diff:"regular"},
-{id:"f02",cat:"restaurant",is:"Forréttur",en:"Appetizer",diff:"regular"},
-{id:"f03",cat:"restaurant",is:"Aðalréttur",en:"Main course",diff:"regular"},
-{id:"f04",cat:"restaurant",is:"Eftirréttur",en:"Dessert",diff:"regular"},
-{id:"f05",cat:"restaurant",is:"Drykkir",en:"Drinks",diff:"regular"},
-{id:"f06",cat:"restaurant",is:"Vatn",en:"Water",diff:"regular"},
-{id:"f07",cat:"restaurant",is:"Bjór",en:"Beer",diff:"regular"},
+{id:"f01",cat:"restaurant",is:"Matseðill",en:"Menu",diff:"regular",mn:"Sounds like 'mat's-edge-nil' — imagine a menu at the edge of your mat/table."},
+{id:"f02",cat:"restaurant",is:"Forréttur",en:"Appetizer",diff:"regular",mn:"'For-' = before — the course that comes before (the appetizer)."},
+{id:"f03",cat:"restaurant",is:"Aðalréttur",en:"Main course",diff:"regular",mn:"'Aðal' = main/chief — the main course again, same root as Aðalbraut."},
+{id:"f04",cat:"restaurant",is:"Eftirréttur",en:"Dessert",diff:"regular",mn:"'Eftir' = after — the course that comes after, dessert."},
+{id:"f05",cat:"restaurant",is:"Drykkir",en:"Drinks",diff:"regular",mn:"Plural of 'drykkur' (drink) — sounds like 'drink-ear', things you drink."},
+{id:"f06",cat:"restaurant",is:"Vatn",en:"Water",diff:"regular",mn:"Close to 'water' itself — 'vat' of water."},
+{id:"f07",cat:"restaurant",is:"Bjór",en:"Beer",diff:"regular",mn:"Near-cognate — sounds close enough to 'beer' to just click."},
 {id:"f08",cat:"restaurant",is:"Vín",en:"Wine",diff:"cognate"},
 {id:"f09",cat:"restaurant",is:"Kaffi",en:"Coffee",diff:"cognate"},
 {id:"f10",cat:"restaurant",is:"Te",en:"Tea",diff:"cognate"},
 {id:"f11",cat:"restaurant",is:"Súpa",en:"Soup",diff:"cognate"},
 {id:"f12",cat:"restaurant",is:"Salat",en:"Salad",diff:"cognate"},
-{id:"f13",cat:"restaurant",is:"Brauð",en:"Bread",diff:"regular"},
-{id:"f14",cat:"restaurant",is:"Smjör",en:"Butter",diff:"regular"},
-{id:"f15",cat:"restaurant",is:"Ostur",en:"Cheese",diff:"regular"},
-{id:"f16",cat:"restaurant",is:"Fiskur",en:"Fish",diff:"regular"},
-{id:"f17",cat:"restaurant",is:"Lax",en:"Salmon",diff:"regular"},
-{id:"f18",cat:"restaurant",is:"Þorskur",en:"Cod",diff:"regular"},
-{id:"f19",cat:"restaurant",is:"Lambakjöt",en:"Lamb",diff:"regular"},
-{id:"f20",cat:"restaurant",is:"Nautakjöt",en:"Beef",diff:"regular"},
-{id:"f21",cat:"restaurant",is:"Kjúklingur",en:"Chicken",diff:"regular"},
-{id:"f22",cat:"restaurant",is:"Grænmetisréttur",en:"Vegetarian dish",diff:"regular"},
-{id:"f23",cat:"restaurant",is:"Glútenlaust",en:"Gluten-free",diff:"regular"},
+{id:"f13",cat:"restaurant",is:"Brauð",en:"Bread",diff:"regular",mn:"Sounds like 'brew-thd' — bread that's been brewed/baked."},
+{id:"f14",cat:"restaurant",is:"Smjör",en:"Butter",diff:"regular",mn:"'Smjör' sounds like 'smear' — you smear butter."},
+{id:"f15",cat:"restaurant",is:"Ostur",en:"Cheese",diff:"regular",mn:"'Ostur' rhymes with 'roster' — a roster (board) of cheeses."},
+{id:"f16",cat:"restaurant",is:"Fiskur",en:"Fish",diff:"regular",mn:"Sounds like 'fisk' — near-identical to 'fish'."},
+{id:"f17",cat:"restaurant",is:"Lax",en:"Salmon",diff:"regular",mn:"Short and sounds like 'lox' — the bagel topping, salmon."},
+{id:"f18",cat:"restaurant",is:"Þorskur",en:"Cod",diff:"regular",mn:"'Þorskur' — the 'th' plus 'orsk' — think 'torque fish', cod."},
+{id:"f19",cat:"restaurant",is:"Lambakjöt",en:"Lamb",diff:"regular",mn:"'Lamb' is right there in 'lambakjöt' — lamb-meat (kjöt = meat)."},
+{id:"f20",cat:"restaurant",is:"Nautakjöt",en:"Beef",diff:"regular",mn:"'Naut' sounds like 'note' — picture a bull (naut) taking a bow note, beef."},
+{id:"f21",cat:"restaurant",is:"Kjúklingur",en:"Chicken",diff:"regular",mn:"'Kjúklingur' — sounds like 'chook-ling', a baby chook (chicken)."},
+{id:"f22",cat:"restaurant",is:"Grænmetisréttur",en:"Vegetarian dish",diff:"regular",mn:"'Grænmetis' = 'green-meat-is' — a green (vegetable) stand-in for meat."},
+{id:"f23",cat:"restaurant",is:"Glútenlaust",en:"Gluten-free",diff:"regular",mn:"'Glúten-laust' = gluten-'loose' (without) — laust = free of."},
 {id:"f24",cat:"restaurant",is:"Ofnæmi",en:"Allergy",diff:"opaque",mn:"Picture a nose ('ofnæmi') offended by pollen."},
-{id:"f25",cat:"restaurant",is:"Skyr",en:"Skyr (Icelandic yogurt-like dairy)",diff:"regular"},
-{id:"f26",cat:"restaurant",is:"Reikningur",en:"The bill / check",diff:"regular"},
-{id:"f27",cat:"restaurant",is:"Þjónn",en:"Waiter",diff:"regular"},
-{id:"f28",cat:"restaurant",is:"Pöntun",en:"Order",diff:"regular"},
+{id:"f25",cat:"restaurant",is:"Skyr",en:"Skyr (Icelandic yogurt-like dairy)",diff:"regular",mn:"Skyr is its own word in English menus now — no translation needed, just recognize the spelling."},
+{id:"f26",cat:"restaurant",is:"Reikningur",en:"The bill / check",diff:"regular",mn:"'Reikna' = to calculate — the reikningur is the calculated bill."},
+{id:"f27",cat:"restaurant",is:"Þjónn",en:"Waiter",diff:"regular",mn:"Sounds like 'yon' — picture the waiter yonder, coming to serve."},
+{id:"f28",cat:"restaurant",is:"Pöntun",en:"Order",diff:"regular",mn:"'Panta' = to order — pöntun is the order itself."},
 {id:"f29",cat:"restaurant",is:"Súkkulaði",en:"Chocolate",diff:"cognate"},
 
 /* ---------------- GROCERY ---------------- */
-{id:"g01",cat:"grocery",is:"Mjólk",en:"Milk",diff:"regular"},
-{id:"g02",cat:"grocery",is:"Rjómi",en:"Cream",diff:"regular"},
+{id:"g01",cat:"grocery",is:"Mjólk",en:"Milk",diff:"regular",mn:"'Mjólk' sounds like 'me-yolk' — picture yolk-colored milk."},
+{id:"g02",cat:"grocery",is:"Rjómi",en:"Cream",diff:"regular",mn:"'Rjómi' sounds like 'creamy-oh' — rich cream."},
 {id:"g03",cat:"grocery",is:"Egg",en:"Eggs",diff:"cognate"},
-{id:"g04",cat:"grocery",is:"Hveiti",en:"Flour",diff:"regular"},
-{id:"g05",cat:"grocery",is:"Sykur",en:"Sugar",diff:"regular"},
-{id:"g06",cat:"grocery",is:"Hrísgrjón",en:"Rice",diff:"regular"},
+{id:"g04",cat:"grocery",is:"Hveiti",en:"Flour",diff:"regular",mn:"'Hveiti' sounds like 'vay-tea' — flour dust floating like tea steam."},
+{id:"g05",cat:"grocery",is:"Sykur",en:"Sugar",diff:"regular",mn:"'Sykur' sounds like 'sicker' — too much sugar makes you sicker."},
+{id:"g06",cat:"grocery",is:"Hrísgrjón",en:"Rice",diff:"regular",mn:"'Hrís' = rice-plant, 'grjón' = grain — rice grains."},
 {id:"g07",cat:"grocery",is:"Pasta",en:"Pasta",diff:"cognate"},
-{id:"g08",cat:"grocery",is:"Ávextir",en:"Fruit",diff:"regular"},
-{id:"g09",cat:"grocery",is:"Grænmeti",en:"Vegetables",diff:"regular"},
+{id:"g08",cat:"grocery",is:"Ávextir",en:"Fruit",diff:"regular",mn:"'Ávextir' — 'ah-vex-tir' — fruits that 'vex' you when they go bad fast."},
+{id:"g09",cat:"grocery",is:"Grænmeti",en:"Vegetables",diff:"regular",mn:"'Græn' = green — green-meti, vegetables."},
 {id:"g10",cat:"grocery",is:"Banani",en:"Banana",diff:"cognate"},
-{id:"g11",cat:"grocery",is:"Epli",en:"Apple",diff:"regular"},
+{id:"g11",cat:"grocery",is:"Epli",en:"Apple",diff:"regular",mn:"Close to 'apple' — 'Epli' nearly matches."},
 {id:"g12",cat:"grocery",is:"Appelsína",en:"Orange",diff:"cognate"},
 {id:"g13",cat:"grocery",is:"Tómatur",en:"Tomato",diff:"cognate"},
-{id:"g14",cat:"grocery",is:"Kartafla",en:"Potato",diff:"regular"},
-{id:"g15",cat:"grocery",is:"Laukur",en:"Onion",diff:"regular"},
-{id:"g16",cat:"grocery",is:"Kex",en:"Cookies / crackers",diff:"regular"},
+{id:"g14",cat:"grocery",is:"Kartafla",en:"Potato",diff:"regular",mn:"'Kartafla' — sounds like 'car-tough-la' — a tough car-sized potato."},
+{id:"g15",cat:"grocery",is:"Laukur",en:"Onion",diff:"regular",mn:"'Laukur' sounds like 'low-kur' — onions make you lower your head crying."},
+{id:"g16",cat:"grocery",is:"Kex",en:"Cookies / crackers",diff:"regular",mn:"'Kex' sounds exactly like 'kex/kecks' — crackers/cookies, near-cognate."},
 {id:"g17",cat:"grocery",is:"Jógúrt",en:"Yogurt",diff:"cognate"},
-{id:"g18",cat:"grocery",is:"Smjörlíki",en:"Margarine",diff:"regular"},
+{id:"g18",cat:"grocery",is:"Smjörlíki",en:"Margarine",diff:"regular",mn:"'Smjör-líki' = butter-'like' — margarine, butter's look-alike."},
 {id:"g19",cat:"grocery",is:"Olía",en:"Oil",diff:"cognate"},
 {id:"g20",cat:"grocery",is:"Salt",en:"Salt",diff:"cognate"},
 {id:"g21",cat:"grocery",is:"Pipar",en:"Pepper",diff:"cognate"},
 {id:"g22",cat:"grocery",is:"Sósa",en:"Sauce",diff:"cognate"},
-{id:"g23",cat:"grocery",is:"Frosið",en:"Frozen",diff:"regular"},
-{id:"g24",cat:"grocery",is:"Ferskt",en:"Fresh",diff:"regular"},
-{id:"g25",cat:"grocery",is:"Lífrænt",en:"Organic",diff:"regular"},
-{id:"g26",cat:"grocery",is:"Afsláttur",en:"Discount",diff:"regular"},
+{id:"g23",cat:"grocery",is:"Frosið",en:"Frozen",diff:"regular",mn:"'Frosið' — frost + -ið — frosted/frozen."},
+{id:"g24",cat:"grocery",is:"Ferskt",en:"Fresh",diff:"regular",mn:"'Ferskt' sounds like 'fresh-t' — nearly the English word."},
+{id:"g25",cat:"grocery",is:"Lífrænt",en:"Organic",diff:"regular",mn:"'Lífrænt' = 'life-organic' — líf = life, the root of organic."},
+{id:"g26",cat:"grocery",is:"Afsláttur",en:"Discount",diff:"regular",mn:"'Afsláttur' — 'af' (off) + slá (strike/hit) — striking the price off."},
 {id:"g27",cat:"grocery",is:"Afgreiðsla",en:"Checkout / service counter",diff:"opaque",mn:"Picture handing your basket 'off' at the 'greiðsla' (payment) counter."},
-{id:"g28",cat:"grocery",is:"Poki",en:"Bag",diff:"regular"},
-{id:"g29",cat:"grocery",is:"Verð",en:"Price",diff:"regular"},
-{id:"g30",cat:"grocery",is:"Opnunartími",en:"Opening hours",diff:"regular"},
+{id:"g28",cat:"grocery",is:"Poki",en:"Bag",diff:"regular",mn:"'Poki' sounds like 'pokey' — a little pokey bag."},
+{id:"g29",cat:"grocery",is:"Verð",en:"Price",diff:"regular",mn:"'Verð' sounds like 'worth' — the price is its worth."},
+{id:"g30",cat:"grocery",is:"Opnunartími",en:"Opening hours",diff:"regular",mn:"'Opnunar-tími' = opening-time — opnun (opening) + tími (time)."},
 
 /* ---------------- DANGER / SAFETY (opaque, mnemonic-heavy) ---------------- */
 {id:"d01",cat:"danger",is:"Hætta",en:"Danger",diff:"opaque",mn:"Sounds like 'hatter' — the Mad Hatter is dangerous."},
@@ -337,7 +351,7 @@ const CARDS = [
 {id:"d05",cat:"danger",is:"Neyðarútgangur",en:"Emergency exit",diff:"opaque",mn:"'Neyð' = need/distress — the exit you NEED in distress."},
 {id:"d06",cat:"danger",is:"Slys",en:"Accident",diff:"opaque",mn:"Short and sharp — like the sound of a crash: 'slys!'"},
 {id:"d07",cat:"danger",is:"Hjálp",en:"Help",diff:"opaque",mn:"Sounds close to 'help' already."},
-{id:"d08",cat:"danger",is:"Sjúkrabíll",en:"Ambulance",diff:"regular"},
+{id:"d08",cat:"danger",is:"Sjúkrabíll",en:"Ambulance",diff:"regular",mn:"'Sjúkra-bíll' = sick-car — same 'sjúk' root as sjúkrahús (hospital)."},
 {id:"d09",cat:"danger",is:"Eldur",en:"Fire",diff:"opaque",mn:"Picture an elder tending a fire."},
 {id:"d10",cat:"danger",is:"Reykur",en:"Smoke",diff:"opaque",mn:"Sounds like 'reek' — smoke reeks."},
 {id:"d11",cat:"danger",is:"Straumur",en:"Current (ocean/river)",diff:"opaque",mn:"'Stream' — a straumur is a strong stream pulling you out."},
@@ -347,18 +361,18 @@ const CARDS = [
 
 /* ---------------- GREETINGS / TRANSACTIONAL ---------------- */
 {id:"h01",cat:"greetings",is:"Halló",en:"Hello",diff:"cognate"},
-{id:"h02",cat:"greetings",is:"Takk",en:"Thanks",diff:"regular"},
-{id:"h03",cat:"greetings",is:"Já",en:"Yes",diff:"regular"},
+{id:"h02",cat:"greetings",is:"Takk",en:"Thanks",diff:"regular",mn:"Sounds like 'tock' — imagine tipping your hat, tock, thanks."},
+{id:"h03",cat:"greetings",is:"Já",en:"Yes",diff:"regular",mn:"Short and sharp — 'yeah' with a hard J, já = yes."},
 {id:"h04",cat:"greetings",is:"Nei",en:"No",diff:"cognate"},
-{id:"h05",cat:"greetings",is:"Fyrirgefðu",en:"Excuse me / sorry",diff:"regular"},
-{id:"h06",cat:"greetings",is:"Gjörðu svo vel",en:"Here you go / please",diff:"regular"},
-{id:"h07",cat:"greetings",is:"Hvað kostar þetta?",en:"How much is this?",diff:"regular"},
-{id:"h08",cat:"greetings",is:"Hvar er klósettið?",en:"Where is the bathroom?",diff:"regular"},
-{id:"h09",cat:"greetings",is:"Skál",en:"Cheers",diff:"regular"},
+{id:"h05",cat:"greetings",is:"Fyrirgefðu",en:"Excuse me / sorry",diff:"regular",mn:"'Fyrirgefðu' — 'for-give-thoo' — literally 'forgive you', excuse me."},
+{id:"h06",cat:"greetings",is:"Gjörðu svo vel",en:"Here you go / please",diff:"regular",mn:"'Gjörðu svo vel' — 'yer-thu svo vel' — 'do it so well', here you go."},
+{id:"h07",cat:"greetings",is:"Hvað kostar þetta?",en:"How much is this?",diff:"regular",mn:"'Kostar' sounds like 'costs' — nearly the English word for cost."},
+{id:"h08",cat:"greetings",is:"Hvar er klósettið?",en:"Where is the bathroom?",diff:"regular",mn:"'Klósett' sounds exactly like 'closet' — the bathroom."},
+{id:"h09",cat:"greetings",is:"Skál",en:"Cheers",diff:"regular",mn:"Short 'Skál' sounds like 'skoal' — the toast word already used in English."},
 {id:"h10",cat:"greetings",is:"Bless",en:"Goodbye",diff:"cognate"},
-{id:"h11",cat:"greetings",is:"Já takk",en:"Yes please",diff:"regular"},
-{id:"h12",cat:"greetings",is:"Nei takk",en:"No thanks",diff:"regular"},
-{id:"h13",cat:"greetings",is:"Talar þú ensku?",en:"Do you speak English?",diff:"regular"},
+{id:"h11",cat:"greetings",is:"Já takk",en:"Yes please",diff:"regular",mn:"'Já' (yes) + 'takk' (thanks) — yes, thanks."},
+{id:"h12",cat:"greetings",is:"Nei takk",en:"No thanks",diff:"regular",mn:"'Nei' sounds like 'nay' — nay, thanks."},
+{id:"h13",cat:"greetings",is:"Talar þú ensku?",en:"Do you speak English?",diff:"regular",mn:"'Talar þú ensku?' — 'talar' sounds like 'talk-er' — do you talk English?"},
 ];
 
 const CATEGORY_LABELS = {
@@ -608,11 +622,37 @@ function renderSettings() {
         <div class="note">Already know some of these? Import them so they start at the right level instead of showing up as brand new.</div>
         <button class="text-btn" id="onboardBtn">Import known words →</button>
       </div>
+      <div class="panel">
+        <h3>export progress</h3>
+        <div class="note">Copy this to share for analysis (e.g. with Claude in a future chat).</div>
+        <textarea id="exportBox" readonly></textarea>
+        <button class="text-btn" id="copyBtn">Copy to clipboard</button>
+        <span class="note" id="copyStatus"></span>
+      </div>
     </main>
   `;
 
   document.getElementById("backBtn").onclick = () => { view = "review"; render(); };
   document.getElementById("onboardBtn").onclick = () => { view = "onboard"; render(); };
+
+  const exportBox = document.getElementById("exportBox");
+  exportBox.value = JSON.stringify(state, null, 2);
+
+  document.getElementById("copyBtn").onclick = () => {
+    const status = document.getElementById("copyStatus");
+    const showCopied = () => { status.textContent = "Copied!"; setTimeout(() => { status.textContent = ""; }, 2000); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(exportBox.value).then(showCopied).catch(() => {
+        exportBox.select();
+        document.execCommand("copy");
+        showCopied();
+      });
+    } else {
+      exportBox.select();
+      document.execCommand("copy");
+      showCopied();
+    }
+  };
   document.querySelectorAll("[data-cat]").forEach(btn => {
     btn.onclick = () => {
       const cat = btn.dataset.cat;
