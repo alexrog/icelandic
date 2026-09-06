@@ -486,7 +486,20 @@ function buildQueue() {
 
   const brandNew = pool.filter(c => !state.cards[c.id].nextDue && state.cards[c.id].history.length === 0);
   const remainingNewAllowed = Math.max(0, state.settings.dailyNewLimit - newCardsIntroducedToday());
-  const newBatch = brandNew.slice(0, remainingNewAllowed);
+
+  // Round-robin brand-new cards across categories instead of taking them in
+  // strict array order, so no single category (e.g. road, restaurant) can
+  // hog every new-card slot for days while others never get introduced.
+  const byCat = {};
+  brandNew.forEach(c => { (byCat[c.cat] = byCat[c.cat] || []).push(c); });
+  const catOrder = activeCats.filter(cat => byCat[cat]);
+  const newBatch = [];
+  let i = 0;
+  while (newBatch.length < remainingNewAllowed && catOrder.some(cat => byCat[cat].length)) {
+    const cat = catOrder[i % catOrder.length];
+    if (byCat[cat].length) newBatch.push(byCat[cat].shift());
+    i++;
+  }
 
   const queue = due.concat(newBatch);
   // interleave: shuffle
