@@ -449,8 +449,14 @@ function applyGrade(cardId, grade, primed) {
   const now = new Date();
   let due;
   if (runwayLeft < 7) {
-    // runway override: always eligible again next session
-    due = new Date(now.getTime() + 8 * 60 * 60 * 1000); // ~8hrs, i.e. "next session"
+    // Runway override, tiered by corrected mastery (p): solid words get more
+    // breathing room so daily review slots concentrate on the words that
+    // still need it, instead of spreading evenly across everything.
+    let hours;
+    if (c.p >= 0.7) hours = 48;       // solid — still gets 3+ touches before the trip
+    else if (c.p >= 0.4) hours = 24;  // shaky — daily check
+    else hours = 8;                   // weak — keep the aggressive cadence
+    due = new Date(now.getTime() + hours * 60 * 60 * 1000);
   } else {
     due = new Date(now.getTime() + gapDays * 24 * 60 * 60 * 1000);
   }
