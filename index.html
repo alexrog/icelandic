@@ -192,7 +192,7 @@
     padding: 10px 0;
   }
   .back-row { margin-bottom: 18px; }
-  #exportBox {
+  #exportBox, #importBox {
     width: 100%;
     height: 120px;
     background: var(--bg);
@@ -373,6 +373,11 @@ const CARDS = [
 {id:"h11",cat:"greetings",is:"Já takk",en:"Yes please",diff:"regular",mn:"'Já' (yes) + 'takk' (thanks) — yes, thanks."},
 {id:"h12",cat:"greetings",is:"Nei takk",en:"No thanks",diff:"regular",mn:"'Nei' sounds like 'nay' — nay, thanks."},
 {id:"h13",cat:"greetings",is:"Talar þú ensku?",en:"Do you speak English?",diff:"regular",mn:"'Talar þú ensku?' — 'talar' sounds like 'talk-er' — do you talk English?"},
+/* ---------------- WORD PIECES (recurring morphemes across the deck) ---------------- */
+{id:"m01",cat:"restaurant",is:"-réttur",en:"course / dish (piece — seen in Forréttur, Aðalréttur, Eftirréttur, Grænmetisréttur)",diff:"regular",mn:"'Réttur' also means 'right/correct' — the correctly-served dish."},
+{id:"m02",cat:"road",is:"-stöð",en:"station (piece — seen in Bensínstöð, Hleðslustöð)",diff:"regular",mn:"'Stöð' sounds like 'stayed' — a place you stay/stop."},
+{id:"m03",cat:"road",is:"-vegur",en:"road / way (piece — seen in Fjallvegur, Malarvegur)",diff:"regular",mn:"'Vegur' sounds like 'vague-ur' — a vague road stretching out."},
+{id:"m04",cat:"restaurant",is:"-kjöt",en:"meat (piece — seen in Lambakjöt, Nautakjöt)",diff:"regular",mn:"'Kjöt' — picture a skewer of kebab meat."},
 ];
 
 const CATEGORY_LABELS = {
@@ -427,12 +432,16 @@ function daysUntilTrip() {
   return Math.ceil((TRIP_DATE - now) / (1000 * 60 * 60 * 24));
 }
 
-function applyGrade(cardId, grade) {
+function applyGrade(cardId, grade, primed) {
   const c = state.cards[cardId];
   const def = CARDS.find(x => x.id === cardId);
+  // A "primed" re-encounter is a same-session requeue after "Didn't know" —
+  // you just saw the answer minutes ago, so recognizing it now is a weaker
+  // signal than independent next-day recall. Discount the recovery bonus
+  // so a quick recognition can't be scored the same as durable memory.
   if (grade === "didnt") c.p = c.p * 0.5;
-  if (grade === "unsure") c.p = c.p + (1 - c.p) * 0.15;
-  if (grade === "ez") c.p = c.p + (1 - c.p) * 0.4;
+  if (grade === "unsure") c.p = c.p + (1 - c.p) * (primed ? 0.075 : 0.15);
+  if (grade === "ez") c.p = c.p + (1 - c.p) * (primed ? 0.2 : 0.4);
   c.p = Math.max(0.05, Math.min(0.97, c.p));
 
   const gapDays = intervalFromP(c.p);
@@ -587,16 +596,19 @@ function renderReview() {
     btn.onclick = () => {
       const c = currentQueue[currentIndex];
       const grade = btn.dataset.grade;
-      applyGrade(c.id, grade);
+      applyGrade(c.id, grade, !!c._primed);
       revealed = false;
       currentIndex++;
       if (grade === "didnt") {
         // Expanding retrieval (Landauer & Bjork 1978): a missed card
         // resurfaces later in *this* session, interleaved with others,
         // rather than waiting for the next-day fallback set above.
+        // Mark it _primed: recall minutes after seeing the answer is a
+        // weaker signal than independent next-day recall, so applyGrade
+        // discounts the recovery bonus if this re-encounter goes well.
         const offset = 4 + Math.floor(Math.random() * 4); // 4–7 cards ahead
         const insertAt = Math.min(currentQueue.length, currentIndex + offset);
-        currentQueue.splice(insertAt, 0, c);
+        currentQueue.splice(insertAt, 0, { ...c, _primed: true });
       }
       render();
     };
@@ -642,6 +654,13 @@ function renderSettings() {
         <button class="text-btn" id="copyBtn">Copy to clipboard</button>
         <span class="note" id="copyStatus"></span>
       </div>
+      <div class="panel">
+        <h3>import progress</h3>
+        <div class="note">Paste corrected progress data here (e.g. after Claude recomputes scores) to merge it in. Only updates cards that already exist — never adds or deletes cards, never touches your settings.</div>
+        <textarea id="importBox" placeholder="Paste JSON here..."></textarea>
+        <button class="text-btn" id="importBtn">Import</button>
+        <span class="note" id="importStatus"></span>
+      </div>
     </main>
   `;
 
@@ -664,6 +683,29 @@ function renderSettings() {
       exportBox.select();
       document.execCommand("copy");
       showCopied();
+    }
+  };
+
+  document.getElementById("importBtn").onclick = () => {
+    const status = document.getElementById("importStatus");
+    const importBox = document.getElementById("importBox");
+    try {
+      const parsed = JSON.parse(importBox.value);
+      if (!parsed || typeof parsed.cards !== "object") throw new Error("missing cards object");
+      let updated = 0;
+      Object.entries(parsed.cards).forEach(([id, incoming]) => {
+        if (state.cards[id] && incoming && typeof incoming.p === "number") {
+          state.cards[id].p = incoming.p;
+          if (Array.isArray(incoming.history)) state.cards[id].history = incoming.history;
+          if ("nextDue" in incoming) state.cards[id].nextDue = incoming.nextDue;
+          updated++;
+        }
+      });
+      saveState();
+      status.textContent = `Imported ${updated} card${updated === 1 ? "" : "s"}.`;
+      exportBox.value = JSON.stringify(state, null, 2);
+    } catch (e) {
+      status.textContent = "Invalid data — nothing imported.";
     }
   };
   document.querySelectorAll("[data-cat]").forEach(btn => {
